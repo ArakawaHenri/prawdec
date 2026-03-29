@@ -45,10 +45,10 @@ enum AppStateStore {
     }
 
     static func fallbackOutputDirectoryURL(fileManager: FileManager = .default) -> URL {
-        let picturesDirectory = fileManager.urls(for: .picturesDirectory, in: .userDomainMask).first
-            ?? fileManager.homeDirectoryForCurrentUser.appending(path: "Pictures", directoryHint: .isDirectory)
-        try? fileManager.createDirectory(at: picturesDirectory, withIntermediateDirectories: true)
-        return picturesDirectory
+        let moviesDirectory = fileManager.urls(for: .moviesDirectory, in: .userDomainMask).first
+            ?? fileManager.homeDirectoryForCurrentUser.appending(path: "Movies", directoryHint: .isDirectory)
+        try? fileManager.createDirectory(at: moviesDirectory, withIntermediateDirectories: true)
+        return moviesDirectory
     }
 
     // MARK: - Writer Actor
