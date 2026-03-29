@@ -1,0 +1,146 @@
+"action.cancel" = "取消";
+"action.cancel_all" = "取消全部";
+"action.import_media" = "导入素材";
+"action.ok" = "确定";
+"action.pause" = "暂停";
+"action.remove" = "移除";
+"action.reveal_in_finder" = "在 Finder 中显示";
+"action.select_ellipsis" = "选择…";
+"action.start" = "开始";
+"action.start_all" = "开始全部";
+
+"alert.error.title" = "错误";
+
+"app.job.restored_note" = "已从上次会话恢复，请重新开始。";
+
+"color.mode.direct_inverse" = "直接逆矩阵";
+"color.mode.dual_illuminant_from_cat" = "双光源（CAT 适配）";
+"color.mode.dual_illuminant_from_tables" = "双光源（ByCCT 表）";
+"color.mode.single_illuminant_undo_wb" = "单光源（去白平衡）";
+"color.mode.single_illuminant_with_cat" = "单光源 D65（CAT）";
+"color.note.estimated_from_bycct" = "从 ByCCT WB 因子估算色温";
+"color.note.use_reported_capture_cct" = "使用 clip 报告的捕捉色温";
+
+"compression.description.jpeg_lossless" = "官方默认 raw 压缩";
+"compression.description.jpeg_lossy_rgb" = "JPEG 有损 RGB，质量 %ld";
+"compression.description.jxl_lossless" = "JPEG XL 无损";
+"compression.description.jxl_lossy_mosaic" = "JPEG XL 有损 Mosaic，质量 %ld";
+"compression.kind.jpeg_lossless" = "JPEG Lossless";
+"compression.kind.jpeg_lossy_rgb" = "JPEG Lossy RGB";
+"compression.kind.jxl_lossless" = "JXL Lossless";
+"compression.kind.jxl_lossy_mosaic" = "JXL Lossy Mosaic";
+
+"content.no_jobs.description.prefix" = "点击工具栏的 ";
+"content.no_jobs.description.suffix" = " 按钮导入 ProRes RAW 素材";
+"content.no_jobs.title" = "没有转换任务";
+"content.no_selection.description" = "导入素材后，在左侧选择一个任务查看详情。";
+"content.no_selection.title" = "没有选择任务";
+"content.queue.title" = "转换队列";
+
+"conversion.note.audio_exported" = "音频已导出：%@";
+"conversion.note.frame_resolved" = "第 %ld 帧：%@ 已解算";
+"conversion.note.no_timecode_track" = "无时间码轨道，从 00:00:00:00 开始";
+"conversion.note.starting_timecode" = "起始时间码：%@";
+"conversion.warning.audio_export_failed" = "音频导出失败：%@";
+
+"directory_picker.prompt.select" = "选择";
+"directory_picker.title.select_output" = "选择输出目录";
+
+"error.audio.cannot_add_reader_output" = "无法添加音频读取输出。";
+"error.audio.cannot_add_writer_input" = "无法添加音频写入输入。";
+"error.audio.cannot_get_format_description" = "无法获取音频格式描述。";
+"error.audio.cannot_start_reading" = "无法开始读取。";
+"error.audio.export_failed" = "音频导出失败：%@";
+"error.audio.no_audio_track" = "素材中没有找到音频轨。";
+"error.audio.write_failed" = "写入失败。";
+
+"error.bridge.empty_pixel_data" = "DNG bridge 收到了空的像素数据。";
+"error.bridge.null_metadata_pointer" = "DNG bridge 收到了空的元数据指针。";
+"error.bridge.unknown_cpp_exception" = "Adobe DNG SDK 抛出了未知的 C++ 异常。";
+
+"error.color.invalid_white_balance_factors" = "白平衡因子无效。";
+"error.color.missing_color_matrix" = "未找到可用的颜色矩阵。";
+"error.color.singular_matrix" = "颜色矩阵不可逆。";
+
+"error.common.unknown" = "未知错误";
+
+"error.conversion.cancelled" = "任务已取消。";
+"error.conversion.cannot_create_asset_reader" = "无法创建素材读取器：%@";
+"error.conversion.cannot_create_reader_output" = "无法创建 ProRes RAW 解码输出。";
+"error.conversion.cannot_start_reading" = "无法开始读取素材：%@";
+"error.conversion.insufficient_disk_space" = "磁盘空间不足：预计需要 %ld MB，可用 %ld MB。";
+"error.conversion.invalid_pixel_buffer" = "无法从样本中取得像素缓冲区。";
+"error.conversion.missing_raw_metadata" = "缺少必要的 RAW 元数据：%@";
+"error.conversion.no_video_track" = "素材中没有找到视频轨。";
+"error.conversion.output_directory_unavailable" = "输出目录不可用：%@";
+"error.conversion.read_failed" = "读取失败";
+"error.conversion.unsupported_bayer_pattern" = "不支持的 CFA / Bayer Pattern：%ld";
+
+"error.dng_writer.deferred" = "DNG 写入模块尚未实现。";
+
+"error.tiff.classic_ifd_entry_overflow" = "Classic TIFF IFD 条目数超限。";
+"error.tiff.classic_offset_overflow" = "Classic TIFF 偏移超出 32 位范围：%llu";
+"error.tiff.file_not_found" = "找不到文件：%@";
+"error.tiff.invalid_tiff" = "无效的 TIFF 文件格式。";
+"error.tiff.io_error" = "I/O 错误：%@";
+"error.tiff.open_for_update_failed" = "无法打开文件进行读写。";
+"error.tiff.unsupported_bigtiff_offset_size" = "不支持的 BigTIFF 偏移尺寸：%hu";
+
+"error.timecode.invalid_frame_rate" = "无效的帧率：%g";
+"error.timecode.unsupported_drop_frame" = "不支持的 drop-frame 时间码帧率：%g fps（名义 %ld fps）。";
+"error.timecode.unsupported_nominal_fps" = "当前 SMPTE 时间码实现不支持名义帧率 %ld fps（实际 %g fps）。";
+"error.timecode_extractor.unsupported_frame_rate" = "不支持的帧率：%g";
+
+"field.capture_white_balance" = "拍摄白平衡";
+"field.compression_mode" = "压缩模式";
+"field.created_at" = "创建时间";
+"field.dimensions" = "尺寸";
+"field.error" = "错误";
+"field.estimated_frames" = "估计帧数";
+"field.eta" = "剩余时间";
+"field.finished_at" = "完成时间";
+"field.frame_rate" = "帧率";
+"field.manufacturer" = "厂商";
+"field.matrix_bycct" = "矩阵 ByCCT";
+"field.metadata_quality" = "元数据质量";
+"field.model" = "机型";
+"field.note" = "备注";
+"field.output_directory" = "输出目录";
+"field.progress" = "进度";
+"field.quality" = "质量 %ld";
+"field.speed" = "速度";
+"field.started_at" = "开始时间";
+"field.status" = "状态";
+"field.wb_bycct" = "WB ByCCT";
+
+"metadata.quality.dual_tables" = "双表完整";
+"metadata.quality.single_frame_only" = "仅单帧";
+"metadata.quality.unknown" = "未知";
+"metadata.quality.wb_table_only" = "仅 WB 表";
+"metadata.unavailable" = "尚未取得 clip 元数据。";
+
+"progress.eta.hours" = "剩余 %ld:%02ld:%02ld";
+"progress.eta.minutes" = "剩余 %ld:%02ld";
+"progress.eta.seconds" = "剩余 %lds";
+"progress.fps" = "%.1f fps";
+
+"queue.frames" = "%ld 帧";
+"queue.position" = "排队 #%ld";
+
+"section.configuration" = "配置";
+"section.metadata" = "元数据";
+"section.runtime" = "运行时";
+
+"status.cancelled" = "已取消";
+"status.cancelling" = "取消中";
+"status.completed" = "已完成";
+"status.failed" = "失败";
+"status.paused" = "已暂停";
+"status.pausing" = "暂停中";
+"status.preparing" = "准备中";
+"status.queued" = "排队中";
+"status.running" = "转换中";
+"status.scanning" = "扫描中";
+
+"value.capture_white_balance" = "%ldK";
+"value.frame_rate" = "%.3f";

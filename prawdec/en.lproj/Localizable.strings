@@ -1,0 +1,146 @@
+"action.cancel" = "Cancel";
+"action.cancel_all" = "Cancel All";
+"action.import_media" = "Import Media";
+"action.ok" = "OK";
+"action.pause" = "Pause";
+"action.remove" = "Remove";
+"action.reveal_in_finder" = "Reveal in Finder";
+"action.select_ellipsis" = "Choose…";
+"action.start" = "Start";
+"action.start_all" = "Start All";
+
+"alert.error.title" = "Error";
+
+"app.job.restored_note" = "Restored from the previous session. Please start it again.";
+
+"color.mode.direct_inverse" = "Direct inverse";
+"color.mode.dual_illuminant_from_cat" = "Dual illuminant (CAT adaptation)";
+"color.mode.dual_illuminant_from_tables" = "Dual illuminant (ByCCT tables)";
+"color.mode.single_illuminant_undo_wb" = "Single illuminant (undo white balance)";
+"color.mode.single_illuminant_with_cat" = "Single illuminant D65 (CAT)";
+"color.note.estimated_from_bycct" = "Estimated capture CCT from ByCCT white-balance factors";
+"color.note.use_reported_capture_cct" = "Using the capture CCT reported by the clip";
+
+"compression.description.jpeg_lossless" = "SDK default raw compression";
+"compression.description.jpeg_lossy_rgb" = "Lossy JPEG RGB, quality %ld";
+"compression.description.jxl_lossless" = "Lossless JPEG XL";
+"compression.description.jxl_lossy_mosaic" = "Lossy JPEG XL mosaic, quality %ld";
+"compression.kind.jpeg_lossless" = "JPEG Lossless";
+"compression.kind.jpeg_lossy_rgb" = "JPEG Lossy RGB";
+"compression.kind.jxl_lossless" = "JXL Lossless";
+"compression.kind.jxl_lossy_mosaic" = "JXL Lossy Mosaic";
+
+"content.no_jobs.description.prefix" = "Use the ";
+"content.no_jobs.description.suffix" = " button in the toolbar to import ProRes RAW media";
+"content.no_jobs.title" = "No Conversion Jobs";
+"content.no_selection.description" = "Import media, then select a job on the left to inspect its details.";
+"content.no_selection.title" = "No Job Selected";
+"content.queue.title" = "Conversion Queue";
+
+"conversion.note.audio_exported" = "Audio exported: %@";
+"conversion.note.frame_resolved" = "Frame %ld: %@ resolved";
+"conversion.note.no_timecode_track" = "No timecode track found. Starting from 00:00:00:00";
+"conversion.note.starting_timecode" = "Starting timecode: %@";
+"conversion.warning.audio_export_failed" = "Audio export failed: %@";
+
+"directory_picker.prompt.select" = "Choose";
+"directory_picker.title.select_output" = "Choose Output Folder";
+
+"error.audio.cannot_add_reader_output" = "Unable to add the audio reader output.";
+"error.audio.cannot_add_writer_input" = "Unable to add the audio writer input.";
+"error.audio.cannot_get_format_description" = "Unable to read the audio format description.";
+"error.audio.cannot_start_reading" = "Unable to start reading.";
+"error.audio.export_failed" = "Audio export failed: %@";
+"error.audio.no_audio_track" = "No audio track was found in the source.";
+"error.audio.write_failed" = "Writing failed.";
+
+"error.bridge.empty_pixel_data" = "The DNG bridge received empty pixel data.";
+"error.bridge.null_metadata_pointer" = "The DNG bridge received a null metadata pointer.";
+"error.bridge.unknown_cpp_exception" = "Unknown C++ exception from the Adobe DNG SDK.";
+
+"error.color.invalid_white_balance_factors" = "Invalid white-balance factors.";
+"error.color.missing_color_matrix" = "No usable color matrix was found.";
+"error.color.singular_matrix" = "The color matrix is not invertible.";
+
+"error.common.unknown" = "Unknown error";
+
+"error.conversion.cancelled" = "The job was cancelled.";
+"error.conversion.cannot_create_asset_reader" = "Unable to create the asset reader: %@";
+"error.conversion.cannot_create_reader_output" = "Unable to create the ProRes RAW decode output.";
+"error.conversion.cannot_start_reading" = "Unable to start reading the source: %@";
+"error.conversion.insufficient_disk_space" = "Not enough disk space: estimated %ld MB required, %ld MB available.";
+"error.conversion.invalid_pixel_buffer" = "Unable to obtain a pixel buffer from the sample.";
+"error.conversion.missing_raw_metadata" = "Missing required RAW metadata: %@";
+"error.conversion.no_video_track" = "No video track was found in the source.";
+"error.conversion.output_directory_unavailable" = "The output directory is unavailable: %@";
+"error.conversion.read_failed" = "Read failed";
+"error.conversion.unsupported_bayer_pattern" = "Unsupported CFA / Bayer pattern: %ld";
+
+"error.dng_writer.deferred" = "The DNG writing module has not been implemented yet.";
+
+"error.tiff.classic_ifd_entry_overflow" = "Classic TIFF IFD entry count overflow.";
+"error.tiff.classic_offset_overflow" = "Classic TIFF offset exceeds the 32-bit limit: %llu";
+"error.tiff.file_not_found" = "File not found: %@";
+"error.tiff.invalid_tiff" = "Invalid TIFF file format.";
+"error.tiff.io_error" = "I/O error: %@";
+"error.tiff.open_for_update_failed" = "Unable to open the file for read/write access.";
+"error.tiff.unsupported_bigtiff_offset_size" = "Unsupported BigTIFF offset size: %hu";
+
+"error.timecode.invalid_frame_rate" = "Invalid frame rate: %g";
+"error.timecode.unsupported_drop_frame" = "Unsupported drop-frame timecode rate: %g fps (nominal %ld fps).";
+"error.timecode.unsupported_nominal_fps" = "The current SMPTE timecode implementation does not support a nominal frame rate of %ld fps (actual %g fps).";
+"error.timecode_extractor.unsupported_frame_rate" = "Unsupported frame rate: %g";
+
+"field.capture_white_balance" = "Capture White Balance";
+"field.compression_mode" = "Compression";
+"field.created_at" = "Created";
+"field.dimensions" = "Dimensions";
+"field.error" = "Error";
+"field.estimated_frames" = "Estimated Frames";
+"field.eta" = "ETA";
+"field.finished_at" = "Finished";
+"field.frame_rate" = "Frame Rate";
+"field.manufacturer" = "Manufacturer";
+"field.matrix_bycct" = "Matrices ByCCT";
+"field.metadata_quality" = "Metadata Quality";
+"field.model" = "Model";
+"field.note" = "Note";
+"field.output_directory" = "Output Folder";
+"field.progress" = "Progress";
+"field.quality" = "Quality %ld";
+"field.speed" = "Speed";
+"field.started_at" = "Started";
+"field.status" = "Status";
+"field.wb_bycct" = "WB ByCCT";
+
+"metadata.quality.dual_tables" = "Full dual tables";
+"metadata.quality.single_frame_only" = "Single-frame only";
+"metadata.quality.unknown" = "Unknown";
+"metadata.quality.wb_table_only" = "WB table only";
+"metadata.unavailable" = "Clip metadata has not been loaded yet.";
+
+"progress.eta.hours" = "Remaining %ld:%02ld:%02ld";
+"progress.eta.minutes" = "Remaining %ld:%02ld";
+"progress.eta.seconds" = "Remaining %lds";
+"progress.fps" = "%.1f fps";
+
+"queue.frames" = "%ld frames";
+"queue.position" = "Queued #%ld";
+
+"section.configuration" = "Configuration";
+"section.metadata" = "Metadata";
+"section.runtime" = "Runtime";
+
+"status.cancelled" = "Cancelled";
+"status.cancelling" = "Cancelling";
+"status.completed" = "Completed";
+"status.failed" = "Failed";
+"status.paused" = "Paused";
+"status.pausing" = "Pausing";
+"status.preparing" = "Preparing";
+"status.queued" = "Queued";
+"status.running" = "Converting";
+"status.scanning" = "Scanning";
+
+"value.capture_white_balance" = "%ldK";
+"value.frame_rate" = "%.3f";

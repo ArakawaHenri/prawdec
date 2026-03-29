@@ -15,9 +15,9 @@ enum AudioExtractorError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .noAudioTrack:
-            return "素材中没有找到音频轨。"
+            return L10n.tr("error.audio.no_audio_track")
         case .exportFailed(let message):
-            return "音频导出失败：\(message)"
+            return L10n.tr("error.audio.export_failed", message)
         }
     }
 }
@@ -56,14 +56,14 @@ enum AudioExtractor {
         readerOutput.alwaysCopiesSampleData = false
 
         guard reader.canAdd(readerOutput) else {
-            throw AudioExtractorError.exportFailed("无法添加音频读取输出。")
+            throw AudioExtractorError.exportFailed(L10n.tr("error.audio.cannot_add_reader_output"))
         }
         reader.add(readerOutput)
 
         // Get audio properties from the reader output
         let formatDescriptions = try await audioTrack.load(.formatDescriptions)
         guard let formatDesc = formatDescriptions.first else {
-            throw AudioExtractorError.exportFailed("无法获取音频格式描述。")
+            throw AudioExtractorError.exportFailed(L10n.tr("error.audio.cannot_get_format_description"))
         }
         let basicDesc = CMAudioFormatDescriptionGetStreamBasicDescription(formatDesc)
         let sampleRate = basicDesc?.pointee.mSampleRate ?? 48000
@@ -83,12 +83,12 @@ enum AudioExtractor {
         writerInput.expectsMediaDataInRealTime = false
 
         guard writer.canAdd(writerInput) else {
-            throw AudioExtractorError.exportFailed("无法添加音频写入输入。")
+            throw AudioExtractorError.exportFailed(L10n.tr("error.audio.cannot_add_writer_input"))
         }
         writer.add(writerInput)
 
         guard reader.startReading() else {
-            throw AudioExtractorError.exportFailed(reader.error?.localizedDescription ?? "无法开始读取。")
+            throw AudioExtractorError.exportFailed(reader.error?.localizedDescription ?? L10n.tr("error.audio.cannot_start_reading"))
         }
         writer.startWriting()
         writer.startSession(atSourceTime: .zero)
@@ -110,7 +110,7 @@ enum AudioExtractor {
         await writer.finishWriting()
 
         if writer.status == .failed {
-            throw AudioExtractorError.exportFailed(writer.error?.localizedDescription ?? "写入失败。")
+            throw AudioExtractorError.exportFailed(writer.error?.localizedDescription ?? L10n.tr("error.audio.write_failed"))
         }
     }
 }

@@ -16,9 +16,13 @@ struct ContentView: View {
             List(selection: $model.selectedJobID) {
                 if model.jobs.isEmpty {
                     ContentUnavailableView {
-                        Label("没有转换任务", systemImage: "film.stack")
+                        Label(L10n.tr("content.no_jobs.title"), systemImage: "film.stack")
                     } description: {
-                        Text("点击工具栏的 \(Image(systemName: "plus")) 按钮导入 ProRes RAW 素材")
+                        HStack(spacing: 4) {
+                            Text(L10n.tr("content.no_jobs.description.prefix"))
+                            Image(systemName: "plus")
+                            Text(L10n.tr("content.no_jobs.description.suffix"))
+                        }
                     }
                     .listRowSeparator(.hidden)
                 } else {
@@ -27,31 +31,31 @@ struct ContentView: View {
                             QueueJobRowView(job: job, queuePosition: model.queuePosition(for: job.id))
                                 .tag(job.id)
                                 .contextMenu {
-                                    Button("开始") {
+                                    Button(L10n.tr("action.start")) {
                                         model.start(jobID: job.id)
                                     }
                                     .disabled(!job.canStart)
 
-                                    Button("暂停") {
+                                    Button(L10n.tr("action.pause")) {
                                         model.pause(jobID: job.id)
                                     }
                                     .disabled(!job.canPause)
 
-                                    Button("取消") {
+                                    Button(L10n.tr("action.cancel")) {
                                         model.cancel(jobID: job.id)
                                     }
                                     .disabled(!job.canCancel)
 
                                     Divider()
 
-                                    Button("移除") {
+                                    Button(L10n.tr("action.remove")) {
                                         model.remove(jobID: job.id)
                                     }
                                     .disabled(!job.canRemove)
                                 }
                         }
                     } header: {
-                        Text("转换队列")
+                        Text(L10n.tr("content.queue.title"))
                     }
                 }
             }
@@ -61,9 +65,9 @@ struct ContentView: View {
                 JobDetailView(model: model, job: selectedJob)
             } else {
                 ContentUnavailableView(
-                    "没有选择任务",
+                    L10n.tr("content.no_selection.title"),
                     systemImage: "film.stack",
-                    description: Text("导入素材后，在左侧选择一个任务查看详情。")
+                    description: Text(L10n.tr("content.no_selection.description"))
                 )
             }
         }
@@ -72,13 +76,13 @@ struct ContentView: View {
                 Button {
                     model.isShowingImporter = true
                 } label: {
-                    Label("导入素材", systemImage: "plus")
+                    Label(L10n.tr("action.import_media"), systemImage: "plus")
                 }
 
                 Button {
                     model.startAll()
                 } label: {
-                    Label("开始全部", systemImage: "play.fill")
+                    Label(L10n.tr("action.start_all"), systemImage: "play.fill")
                 }
                 .disabled(model.jobs.isEmpty)
 
@@ -87,14 +91,14 @@ struct ContentView: View {
                         model.pause(jobID: id)
                     }
                 } label: {
-                    Label("暂停", systemImage: "pause.fill")
+                    Label(L10n.tr("action.pause"), systemImage: "pause.fill")
                 }
                 .disabled(!(model.selectedJob?.canPause ?? false))
 
                 Button {
                     model.cancelAll()
                 } label: {
-                    Label("取消全部", systemImage: "stop.fill")
+                    Label(L10n.tr("action.cancel_all"), systemImage: "stop.fill")
                 }
                 .disabled(!model.canCancelAny)
             }
@@ -113,13 +117,13 @@ struct ContentView: View {
             }
         }
         .alert(
-            "错误",
+            L10n.tr("alert.error.title"),
             isPresented: Binding(
                 get: { model.alertMessage != nil },
                 set: { if !$0 { model.alertMessage = nil } }
             ),
             actions: {
-                Button("确定", role: .cancel) {
+                Button(L10n.tr("action.ok"), role: .cancel) {
                     model.alertMessage = nil
                 }
             },

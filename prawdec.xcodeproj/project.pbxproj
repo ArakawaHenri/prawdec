@@ -75,33 +75,34 @@
 /* Begin PBXProject section */
 		BBBE59442F771A8B00E9C75A /* Project object */ = {
 			isa = PBXProject;
-				attributes = {
-					BuildIndependentTargetsInParallel = 1;
-					LastSwiftUpdateCheck = 2640;
-					LastUpgradeCheck = 2640;
-					TargetAttributes = {
-						BBBE594B2F771A8B00E9C75A = {
-							CreatedOnToolsVersion = 26.4;
-						};
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2640;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					BBBE594B2F771A8B00E9C75A = {
+						CreatedOnToolsVersion = 26.4;
 					};
 				};
+			};
 			buildConfigurationList = BBBE59472F771A8B00E9C75A /* Build configuration list for PBXProject "prawdec" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
 				Base,
 			);
 			mainGroup = BBBE59432F771A8B00E9C75A;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BBBE594D2F771A8B00E9C75A /* Products */;
-				projectDirPath = "";
-				projectRoot = "";
-				targets = (
-					BBBE594B2F771A8B00E9C75A /* prawdec */,
-				);
-			};
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BBBE594B2F771A8B00E9C75A /* prawdec */,
+			);
+		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */

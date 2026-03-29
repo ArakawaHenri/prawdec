@@ -21,7 +21,7 @@ enum TimecodeExtractorError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .unsupportedFrameRate(let fps):
-            return "不支持的帧率: \(fps)"
+            return L10n.tr("error.timecode_extractor.unsupported_frame_rate", fps)
         }
     }
 }

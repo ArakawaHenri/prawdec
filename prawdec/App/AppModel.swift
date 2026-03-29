@@ -398,7 +398,7 @@ final class AppModel {
             break
         case .preparing, .running, .pausing, .paused, .cancelling:
             job.status = job.clipMetadata == nil ? .scanning : .queued
-            job.note = "已从上次会话恢复，请重新开始。"
+            job.note = L10n.tr("app.job.restored_note")
             job.errorMessage = nil
             job.outputFolderURL = nil
             job.progress.completedFrames = 0

@@ -13,7 +13,7 @@ enum DNGWriterError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .deferredImplementation:
-            return "DNG 写入模块尚未实现。"
+            return L10n.tr("error.dng_writer.deferred")
         }
     }
 }

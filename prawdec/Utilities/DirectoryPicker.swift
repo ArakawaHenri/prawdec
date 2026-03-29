@@ -13,8 +13,8 @@ enum DirectoryPicker {
     static func pickDirectory(startingAt initialURL: URL?) async -> URL? {
         await withCheckedContinuation { continuation in
             let panel = NSOpenPanel()
-            panel.prompt = "选择"
-            panel.title = "选择输出目录"
+            panel.prompt = L10n.tr("directory_picker.prompt.select")
+            panel.title = L10n.tr("directory_picker.title.select_output")
             panel.canChooseDirectories = true
             panel.canChooseFiles = false
             panel.allowsMultipleSelection = false

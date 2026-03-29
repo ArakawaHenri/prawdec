@@ -13,11 +13,11 @@ enum ColorScienceError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .singularMatrix:
-            return "颜色矩阵不可逆。"
+            return L10n.tr("error.color.singular_matrix")
         case .missingColorMatrix:
-            return "未找到可用的颜色矩阵。"
+            return L10n.tr("error.color.missing_color_matrix")
         case .invalidWhiteBalanceFactors:
-            return "白平衡因子无效。"
+            return L10n.tr("error.color.invalid_white_balance_factors")
         }
     }
 }
@@ -75,11 +75,11 @@ enum ResolvedColorMode: String, Sendable {
 
     var title: String {
         switch self {
-        case .dualIlluminantFromTables: return "双光源（ByCCT 表）"
-        case .dualIlluminantFromCAT: return "双光源（CAT 适配）"
-        case .singleIlluminantWithCAT: return "单光源 D65（CAT）"
-        case .singleIlluminantUndoWB: return "单光源（去白平衡）"
-        case .directInverse: return "直接逆矩阵"
+        case .dualIlluminantFromTables: return L10n.tr("color.mode.dual_illuminant_from_tables")
+        case .dualIlluminantFromCAT: return L10n.tr("color.mode.dual_illuminant_from_cat")
+        case .singleIlluminantWithCAT: return L10n.tr("color.mode.single_illuminant_with_cat")
+        case .singleIlluminantUndoWB: return L10n.tr("color.mode.single_illuminant_undo_wb")
+        case .directInverse: return L10n.tr("color.mode.direct_inverse")
         }
     }
 }

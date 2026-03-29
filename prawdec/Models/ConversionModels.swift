@@ -22,25 +22,25 @@ enum ConversionStatus: String, Codable, Sendable {
     var title: String {
         switch self {
         case .scanning:
-            return "扫描中"
+            return L10n.tr("status.scanning")
         case .queued:
-            return "排队中"
+            return L10n.tr("status.queued")
         case .preparing:
-            return "准备中"
+            return L10n.tr("status.preparing")
         case .running:
-            return "转换中"
+            return L10n.tr("status.running")
         case .pausing:
-            return "暂停中"
+            return L10n.tr("status.pausing")
         case .paused:
-            return "已暂停"
+            return L10n.tr("status.paused")
         case .cancelling:
-            return "取消中"
+            return L10n.tr("status.cancelling")
         case .cancelled:
-            return "已取消"
+            return L10n.tr("status.cancelled")
         case .completed:
-            return "已完成"
+            return L10n.tr("status.completed")
         case .failed:
-            return "失败"
+            return L10n.tr("status.failed")
         }
     }
 
@@ -72,13 +72,13 @@ enum MetadataQuality: String, Codable, Sendable {
     var title: String {
         switch self {
         case .dualTables:
-            return "双表完整"
+            return L10n.tr("metadata.quality.dual_tables")
         case .wbTableOnly:
-            return "仅 WB 表"
+            return L10n.tr("metadata.quality.wb_table_only")
         case .singleFrameOnly:
-            return "仅单帧"
+            return L10n.tr("metadata.quality.single_frame_only")
         case .unknown:
-            return "未知"
+            return L10n.tr("metadata.quality.unknown")
         }
     }
 }
@@ -128,21 +128,21 @@ struct JobProgress: Codable, Hashable, Sendable {
     var etaLabel: String? {
         guard let eta = estimatedTimeRemaining else { return nil }
         if eta < 60 {
-            return "剩余 \(Int(eta))s"
+            return L10n.tr("progress.eta.seconds", Int(eta))
         } else if eta < 3600 {
             let minutes = Int(eta) / 60
             let seconds = Int(eta) % 60
-            return String(format: "剩余 %d:%02d", minutes, seconds)
+            return L10n.tr("progress.eta.minutes", minutes, seconds)
         } else {
             let hours = Int(eta) / 3600
             let minutes = (Int(eta) % 3600) / 60
-            return String(format: "剩余 %d:%02d:%02d", hours, minutes, Int(eta) % 60)
+            return L10n.tr("progress.eta.hours", hours, minutes, Int(eta) % 60)
         }
     }
 
     var speedLabel: String? {
         guard let fps else { return nil }
-        return String(format: "%.1f fps", fps)
+        return L10n.tr("progress.fps", fps)
     }
 }
 

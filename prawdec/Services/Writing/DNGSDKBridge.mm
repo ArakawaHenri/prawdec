@@ -347,14 +347,14 @@ BOOL PDDNGSDKWriteDNG(NSString *destinationPath,
             defaultCropSize == nullptr || colorMatrix1 == nullptr ||
             asShotNeutral == nullptr) {
             if (error) {
-                *error = BridgeError(1, @"DNG bridge received null metadata pointer.");
+                *error = BridgeError(1, NSLocalizedString(@"error.bridge.null_metadata_pointer", nil));
             }
             return NO;
         }
 
         if (pixelData.length == 0) {
             if (error) {
-                *error = BridgeError(2, @"DNG bridge received empty pixel data.");
+                *error = BridgeError(2, NSLocalizedString(@"error.bridge.empty_pixel_data", nil));
             }
             return NO;
         }
@@ -467,7 +467,7 @@ BOOL PDDNGSDKWriteDNG(NSString *destinationPath,
             return NO;
         } catch (...) {
             if (error) {
-                *error = BridgeError(1001, @"Unknown C++ exception from Adobe DNG SDK.");
+                *error = BridgeError(1001, NSLocalizedString(@"error.bridge.unknown_cpp_exception", nil));
             }
             return NO;
         }

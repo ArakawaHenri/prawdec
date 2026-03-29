@@ -125,12 +125,12 @@ enum ColorScience {
         var frameCCT = frameAttachments.whiteBalanceCCT
         if (frameCCT ?? 0) <= 0, let reportedCCT = clipMetadata.reportedCaptureCCT, reportedCCT > 0 {
             frameCCT = reportedCCT
-            notes.append("使用 clip 报告的捕捉色温")
+            notes.append(L10n.tr("color.note.use_reported_capture_cct"))
         }
         if (frameCCT ?? 0) <= 0, let r = frameR, let b = frameB,
            let estimated = estimateCCT(fromRedFactor: r, blueFactor: b, samples: clipMetadata.whiteBalanceByCCT) {
             frameCCT = estimated
-            notes.append("从 ByCCT WB 因子估算色温")
+            notes.append(L10n.tr("color.note.estimated_from_bycct"))
         }
 
         guard let frameX = frameAttachments.colorMatrix else {

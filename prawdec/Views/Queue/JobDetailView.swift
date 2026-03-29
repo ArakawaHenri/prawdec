@@ -34,16 +34,16 @@ struct JobDetailView: View {
                 .textSelection(.enabled)
 
             HStack {
-                actionButton("开始", systemImage: "play.fill", disabled: !job.canStart) {
+                actionButton(L10n.tr("action.start"), systemImage: "play.fill", disabled: !job.canStart) {
                     model.start(jobID: job.id)
                 }
-                actionButton("暂停", systemImage: "pause.fill", disabled: !job.canPause) {
+                actionButton(L10n.tr("action.pause"), systemImage: "pause.fill", disabled: !job.canPause) {
                     model.pause(jobID: job.id)
                 }
-                actionButton("取消", systemImage: "xmark.circle.fill", disabled: !job.canCancel) {
+                actionButton(L10n.tr("action.cancel"), systemImage: "xmark.circle.fill", disabled: !job.canCancel) {
                     model.cancel(jobID: job.id)
                 }
-                actionButton("移除", systemImage: "trash", disabled: !job.canRemove) {
+                actionButton(L10n.tr("action.remove"), systemImage: "trash", disabled: !job.canRemove) {
                     model.remove(jobID: job.id)
                 }
             }
@@ -51,10 +51,10 @@ struct JobDetailView: View {
     }
 
     private var configurationSection: some View {
-        GroupBox("配置") {
+        GroupBox(L10n.tr("section.configuration")) {
             VStack(alignment: .leading, spacing: 14) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("输出目录")
+                    Text(L10n.tr("field.output_directory"))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     HStack {
@@ -63,7 +63,7 @@ struct JobDetailView: View {
                             .lineLimit(2)
                             .textSelection(.enabled)
                         Spacer()
-                        Button("选择…") {
+                        Button(L10n.tr("action.select_ellipsis")) {
                             Task { await model.chooseOutputDirectory(for: job.id) }
                         }
                         .disabled(!job.canEditConfiguration)
@@ -71,10 +71,10 @@ struct JobDetailView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("压缩模式")
+                    Text(L10n.tr("field.compression_mode"))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    Picker("压缩模式", selection: compressionKindBinding) {
+                    Picker(L10n.tr("field.compression_mode"), selection: compressionKindBinding) {
                         ForEach(DNGCompressionKind.allCases) { kind in
                             Text(kind.title).tag(kind)
                         }
@@ -84,7 +84,7 @@ struct JobDetailView: View {
 
                     if let quality = job.compressionPreset.quality, let range = job.compressionPreset.qualityRange {
                         Stepper(value: compressionQualityBinding, in: range) {
-                            Text("质量 \(quality)")
+                            Text(L10n.tr("field.quality", quality))
                         }
                         .disabled(!job.canEditConfiguration)
                     }
@@ -99,40 +99,40 @@ struct JobDetailView: View {
     }
 
     private var metadataSection: some View {
-        GroupBox("元数据") {
+        GroupBox(L10n.tr("section.metadata")) {
             VStack(alignment: .leading, spacing: 10) {
-                metadataRow("状态", job.status.title)
-                metadataRow("进度", job.progress.frameLabel)
+                metadataRow(L10n.tr("field.status"), job.status.title)
+                metadataRow(L10n.tr("field.progress"), job.progress.frameLabel)
                 if let speed = job.progress.speedLabel, job.status == .running {
-                    metadataRow("速度", speed)
+                    metadataRow(L10n.tr("field.speed"), speed)
                 }
                 if let eta = job.progress.etaLabel, job.status == .running {
-                    metadataRow("剩余时间", eta)
+                    metadataRow(L10n.tr("field.eta"), eta)
                 }
                 if let clipMetadata = job.clipMetadata {
                     if let dimensions = clipMetadata.dimensions {
-                        metadataRow("尺寸", dimensions.description)
+                        metadataRow(L10n.tr("field.dimensions"), dimensions.description)
                     }
                     if let nominalFrameRate = clipMetadata.nominalFrameRate {
-                        metadataRow("帧率", String(format: "%.3f", nominalFrameRate))
+                        metadataRow(L10n.tr("field.frame_rate"), L10n.tr("value.frame_rate", nominalFrameRate))
                     }
                     if let estimatedFrameCount = clipMetadata.estimatedFrameCount {
-                        metadataRow("估计帧数", "\(estimatedFrameCount)")
+                        metadataRow(L10n.tr("field.estimated_frames"), "\(estimatedFrameCount)")
                     }
-                    metadataRow("元数据质量", clipMetadata.quality.title)
+                    metadataRow(L10n.tr("field.metadata_quality"), clipMetadata.quality.title)
                     if let manufacturer = clipMetadata.manufacturer {
-                        metadataRow("厂商", manufacturer)
+                        metadataRow(L10n.tr("field.manufacturer"), manufacturer)
                     }
                     if let model = clipMetadata.model {
-                        metadataRow("机型", model)
+                        metadataRow(L10n.tr("field.model"), model)
                     }
                     if let reportedCaptureCCT = clipMetadata.reportedCaptureCCT {
-                        metadataRow("拍摄白平衡", "\(reportedCaptureCCT)K")
+                        metadataRow(L10n.tr("field.capture_white_balance"), L10n.tr("value.capture_white_balance", reportedCaptureCCT))
                     }
-                    metadataRow("WB ByCCT", "\(clipMetadata.whiteBalanceByCCTCount)")
-                    metadataRow("矩阵 ByCCT", "\(clipMetadata.colorMatrixByCCTCount)")
+                    metadataRow(L10n.tr("field.wb_bycct"), "\(clipMetadata.whiteBalanceByCCTCount)")
+                    metadataRow(L10n.tr("field.matrix_bycct"), "\(clipMetadata.colorMatrixByCCTCount)")
                 } else {
-                    Text("尚未取得 clip 元数据。")
+                    Text(L10n.tr("metadata.unavailable"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -142,20 +142,20 @@ struct JobDetailView: View {
     }
 
     private var runtimeSection: some View {
-        GroupBox("运行时") {
+        GroupBox(L10n.tr("section.runtime")) {
             VStack(alignment: .leading, spacing: 10) {
-                metadataRow("创建时间", formatted(job.createdAt))
+                metadataRow(L10n.tr("field.created_at"), formatted(job.createdAt))
                 if let startedAt = job.startedAt {
-                    metadataRow("开始时间", formatted(startedAt))
+                    metadataRow(L10n.tr("field.started_at"), formatted(startedAt))
                 }
                 if let finishedAt = job.finishedAt {
-                    metadataRow("完成时间", formatted(finishedAt))
+                    metadataRow(L10n.tr("field.finished_at"), formatted(finishedAt))
                 }
                 if let note = job.note, !note.isEmpty {
-                    metadataRow("备注", note)
+                    metadataRow(L10n.tr("field.note"), note)
                 }
                 if let errorMessage = job.errorMessage, !errorMessage.isEmpty {
-                    metadataRow("错误", errorMessage)
+                    metadataRow(L10n.tr("field.error"), errorMessage)
                 }
                 if !job.warnings.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
@@ -172,7 +172,7 @@ struct JobDetailView: View {
                             .font(.caption.monospaced())
                             .textSelection(.enabled)
                         Spacer()
-                        Button("在 Finder 中显示") {
+                        Button(L10n.tr("action.reveal_in_finder")) {
                             model.revealOutputFolder(for: job.id)
                         }
                     }

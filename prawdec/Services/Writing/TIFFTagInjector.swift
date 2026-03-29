@@ -21,11 +21,11 @@ enum TIFFTagInjectorError: LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .fileNotFound(let path): return "找不到文件：\(path)"
-        case .invalidTIFF: return "无效的 TIFF 文件格式。"
-        case .unsupportedBigTIFFOffsetSize(let size): return "不支持的 BigTIFF 偏移尺寸：\(size)"
-        case .classicTIFFOffsetOverflow(let offset): return "Classic TIFF 偏移超出 32 位范围：\(offset)"
-        case .ioError(let msg): return "I/O 错误：\(msg)"
+        case .fileNotFound(let path): return L10n.tr("error.tiff.file_not_found", path)
+        case .invalidTIFF: return L10n.tr("error.tiff.invalid_tiff")
+        case .unsupportedBigTIFFOffsetSize(let size): return L10n.tr("error.tiff.unsupported_bigtiff_offset_size", size)
+        case .classicTIFFOffsetOverflow(let offset): return L10n.tr("error.tiff.classic_offset_overflow", offset)
+        case .ioError(let msg): return L10n.tr("error.tiff.io_error", msg)
         }
     }
 }
@@ -110,7 +110,7 @@ enum TIFFTagInjector {
         do {
             handle = try FileHandle(forUpdating: url)
         } catch {
-            throw TIFFTagInjectorError.ioError("无法打开文件进行读写。")
+            throw TIFFTagInjectorError.ioError(L10n.tr("error.tiff.open_for_update_failed"))
         }
         defer { try? handle.close() }
 
@@ -293,7 +293,7 @@ enum TIFFTagInjector {
         switch header.kind {
         case .classic:
             guard ifd.entries.count <= Int(UInt16.max) else {
-                throw TIFFTagInjectorError.ioError("Classic TIFF IFD 条目数超限。")
+                throw TIFFTagInjectorError.ioError(L10n.tr("error.tiff.classic_ifd_entry_overflow"))
             }
             var countData = Data(count: 2)
             writeUInt16(&countData, offset: 0, value: UInt16(ifd.entries.count), littleEndian: header.isLittleEndian)

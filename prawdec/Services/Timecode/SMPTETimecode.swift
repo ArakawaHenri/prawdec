@@ -18,11 +18,11 @@ enum TimecodeFormatError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .invalidFrameRate(let fps):
-            return "无效的帧率：\(fps)"
+            return L10n.tr("error.timecode.invalid_frame_rate", fps)
         case .unsupportedNominalFPS(let nominalFPS, let actualFPS):
-            return "当前 SMPTE 时间码实现不支持名义帧率 \(nominalFPS) fps（实际 \(actualFPS) fps）。"
+            return L10n.tr("error.timecode.unsupported_nominal_fps", nominalFPS, actualFPS)
         case .unsupportedDropFrame(let actualFPS, let nominalFPS):
-            return "不支持的 drop-frame 时间码帧率：\(actualFPS) fps（名义 \(nominalFPS) fps）。"
+            return L10n.tr("error.timecode.unsupported_drop_frame", actualFPS, nominalFPS)
         }
     }
 }

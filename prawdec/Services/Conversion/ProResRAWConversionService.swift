@@ -25,25 +25,25 @@ enum ConversionServiceError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .noVideoTrack:
-            return "素材中没有找到视频轨。"
+            return L10n.tr("error.conversion.no_video_track")
         case .cannotCreateAssetReader(let message):
-            return "无法创建素材读取器：\(message)"
+            return L10n.tr("error.conversion.cannot_create_asset_reader", message)
         case .cannotCreateReaderOutput:
-            return "无法创建 ProRes RAW 解码输出。"
+            return L10n.tr("error.conversion.cannot_create_reader_output")
         case .cannotStartReading(let message):
-            return "无法开始读取素材：\(message)"
+            return L10n.tr("error.conversion.cannot_start_reading", message)
         case .invalidPixelBuffer:
-            return "无法从样本中取得像素缓冲区。"
+            return L10n.tr("error.conversion.invalid_pixel_buffer")
         case .missingRawMetadata(let field):
-            return "缺少必要的 RAW 元数据：\(field)"
+            return L10n.tr("error.conversion.missing_raw_metadata", field)
         case .unsupportedBayerPattern(let rawValue):
-            return "不支持的 CFA / Bayer Pattern：\(rawValue)"
+            return L10n.tr("error.conversion.unsupported_bayer_pattern", rawValue)
         case .cancelled:
-            return "任务已取消。"
+            return L10n.tr("error.conversion.cancelled")
         case .insufficientDiskSpace(let requiredMB, let availableMB):
-            return "磁盘空间不足：预计需要 \(requiredMB) MB，可用 \(availableMB) MB。"
+            return L10n.tr("error.conversion.insufficient_disk_space", requiredMB, availableMB)
         case .outputDirectoryUnavailable(let path):
-            return "输出目录不可用：\(path)"
+            return L10n.tr("error.conversion.output_directory_unavailable", path)
         }
     }
 }
@@ -183,9 +183,9 @@ final class ProResRAWConversionService: Sendable {
 
         // Log timecode info
         if let tcInfo = context.timecodeInfo {
-            await onEvent(.note("起始时间码: \(tcInfo.startTimecode)"))
+            await onEvent(.note(L10n.tr("conversion.note.starting_timecode", tcInfo.startTimecode.description)))
         } else {
-            await onEvent(.note("无时间码轨道，从 00:00:00:00 开始"))
+            await onEvent(.note(L10n.tr("conversion.note.no_timecode_track")))
         }
 
         let outputFolder = try makeOutputFolder(
@@ -218,7 +218,7 @@ final class ProResRAWConversionService: Sendable {
 
         reader.add(output)
         guard reader.startReading() else {
-            throw ConversionServiceError.cannotStartReading(reader.error?.localizedDescription ?? "未知错误")
+            throw ConversionServiceError.cannotStartReading(reader.error?.localizedDescription ?? L10n.tr("error.common.unknown"))
         }
 
         var frameIndex = 0
@@ -242,7 +242,7 @@ final class ProResRAWConversionService: Sendable {
             )
 
             if !writeRequest.payload.asShotNeutral.elementsEqual([1, 1, 1]) {
-                await onEvent(.note("frame \(frameIndex): \(writeRequest.payload.uniqueCameraModel) resolved"))
+                await onEvent(.note(L10n.tr("conversion.note.frame_resolved", frameIndex, writeRequest.payload.uniqueCameraModel)))
             }
 
             try writer.write(request: writeRequest)
@@ -255,7 +255,7 @@ final class ProResRAWConversionService: Sendable {
             throw ConversionServiceError.cancelled
         }
         if reader.status == .failed {
-            throw ConversionServiceError.cannotStartReading(reader.error?.localizedDescription ?? "读取失败")
+            throw ConversionServiceError.cannotStartReading(reader.error?.localizedDescription ?? L10n.tr("error.conversion.read_failed"))
         }
 
         // Extract audio to WAV sidecar
@@ -265,9 +265,9 @@ final class ProResRAWConversionService: Sendable {
             let audioURL = outputFolder.appending(path: "\(folderName).wav")
             do {
                 try await AudioExtractor.extractAudio(from: context.asset, to: audioURL)
-                await onEvent(.note("音频已导出: \(audioURL.lastPathComponent)"))
+                await onEvent(.note(L10n.tr("conversion.note.audio_exported", audioURL.lastPathComponent)))
             } catch {
-                await onEvent(.warning("音频导出失败: \(error.localizedDescription)"))
+                await onEvent(.warning(L10n.tr("conversion.warning.audio_export_failed", error.localizedDescription)))
             }
         }
     }

@@ -60,7 +60,7 @@ struct QueueJobRowView: View {
                     Text(job.progress.frameLabel)
                         .monospacedDigit()
                 } else if job.status == .queued, let position = queuePosition {
-                    Text("排队 #\(position)")
+                    Text(L10n.tr("queue.position", position))
                 } else if let outputFolderURL = job.outputFolderURL {
                     Text(outputFolderURL.lastPathComponent)
                         .lineLimit(1)
@@ -75,7 +75,7 @@ struct QueueJobRowView: View {
                         Text(dimensions.description)
                     }
                     if let estimatedFrameCount = clipMetadata.estimatedFrameCount {
-                        Text("\(estimatedFrameCount) 帧")
+                        Text(L10n.tr("queue.frames", estimatedFrameCount))
                     }
                     Text(clipMetadata.quality.title)
                 }

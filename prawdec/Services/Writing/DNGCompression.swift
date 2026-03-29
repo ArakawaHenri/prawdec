@@ -18,13 +18,13 @@ enum DNGCompressionKind: String, CaseIterable, Identifiable, Codable, Sendable {
     var title: String {
         switch self {
         case .jpegLossless:
-            return "JPEG Lossless"
+            return L10n.tr("compression.kind.jpeg_lossless")
         case .jxlLossless:
-            return "JXL Lossless"
+            return L10n.tr("compression.kind.jxl_lossless")
         case .jxlLossyMosaic:
-            return "JXL Lossy Mosaic"
+            return L10n.tr("compression.kind.jxl_lossy_mosaic")
         case .jpegLossyRGB:
-            return "JPEG Lossy RGB"
+            return L10n.tr("compression.kind.jpeg_lossy_rgb")
         }
     }
 }
@@ -64,13 +64,13 @@ enum DNGCompressionPreset: Hashable, Codable, Sendable, CaseIterable, Identifiab
     var shortDescription: String {
         switch self {
         case .jpegLossless:
-            return "官方默认 raw 压缩"
+            return L10n.tr("compression.description.jpeg_lossless")
         case .jxlLossless:
-            return "JPEG XL 无损"
+            return L10n.tr("compression.description.jxl_lossless")
         case .jxlLossyMosaic(let quality):
-            return "JPEG XL 有损 Mosaic，质量 \(quality)"
+            return L10n.tr("compression.description.jxl_lossy_mosaic", quality)
         case .jpegLossyRGB(let quality):
-            return "JPEG 有损 RGB，质量 \(quality)"
+            return L10n.tr("compression.description.jpeg_lossy_rgb", quality)
         }
     }
 
