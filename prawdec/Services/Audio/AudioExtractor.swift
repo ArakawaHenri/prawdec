@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import AudioToolbox
 import Foundation
 
 enum AudioExtractorError: LocalizedError, Sendable {
@@ -23,6 +24,33 @@ enum AudioExtractorError: LocalizedError, Sendable {
 }
 
 enum AudioExtractor {
+    private static func makeChannelLayoutData(
+        formatDescription: CMAudioFormatDescription,
+        channelCount: UInt32
+    ) -> Data {
+        var layoutSize = 0
+        if let layoutPointer = CMAudioFormatDescriptionGetChannelLayout(formatDescription, sizeOut: &layoutSize),
+           layoutSize > 0
+        {
+            return Data(bytes: layoutPointer, count: layoutSize)
+        }
+
+        var fallbackLayout = AudioChannelLayout()
+        switch channelCount {
+        case 1:
+            fallbackLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Mono
+        case 2:
+            fallbackLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo
+        default:
+            fallbackLayout.mChannelLayoutTag = AudioChannelLayoutTag(kAudioChannelLayoutTag_DiscreteInOrder | channelCount)
+        }
+        fallbackLayout.mChannelBitmap = AudioChannelBitmap(rawValue: 0)
+        fallbackLayout.mNumberChannelDescriptions = 0
+
+        return withUnsafePointer(to: &fallbackLayout) { pointer in
+            Data(bytes: pointer, count: MemoryLayout<AudioChannelLayout>.size)
+        }
+    }
 
     /// Check whether the asset has an audio track.
     static func hasAudioTrack(in asset: AVURLAsset) async throws -> Bool {
@@ -68,12 +96,17 @@ enum AudioExtractor {
         let basicDesc = CMAudioFormatDescriptionGetStreamBasicDescription(formatDesc)
         let sampleRate = basicDesc?.pointee.mSampleRate ?? 48000
         let channelCount = basicDesc?.pointee.mChannelsPerFrame ?? 2
+        let channelLayoutData = makeChannelLayoutData(
+            formatDescription: formatDesc,
+            channelCount: channelCount
+        )
 
         let writer = try AVAssetWriter(url: outputURL, fileType: .wav)
         let writerSettings: [String: Any] = [
             AVFormatIDKey: kAudioFormatLinearPCM,
             AVSampleRateKey: sampleRate,
             AVNumberOfChannelsKey: channelCount,
+            AVChannelLayoutKey: channelLayoutData,
             AVLinearPCMBitDepthKey: 24,
             AVLinearPCMIsFloatKey: false,
             AVLinearPCMIsBigEndianKey: false,
@@ -90,19 +123,52 @@ enum AudioExtractor {
         guard reader.startReading() else {
             throw AudioExtractorError.exportFailed(reader.error?.localizedDescription ?? L10n.tr("error.audio.cannot_start_reading"))
         }
-        writer.startWriting()
+        guard writer.startWriting() else {
+            throw AudioExtractorError.exportFailed(writer.error?.localizedDescription ?? L10n.tr("error.audio.write_failed"))
+        }
         writer.startSession(atSourceTime: .zero)
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            writerInput.requestMediaDataWhenReady(on: DispatchQueue(label: "moe.henri.prawdec.audio")) {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let queue = DispatchQueue(label: "moe.henri.prawdec.audio")
+            var didResume = false
+
+            func resume(with result: Result<Void, Error>) {
+                guard !didResume else { return }
+                didResume = true
+                continuation.resume(with: result)
+            }
+
+            writerInput.requestMediaDataWhenReady(on: queue) {
                 while writerInput.isReadyForMoreMediaData {
                     if let sampleBuffer = readerOutput.copyNextSampleBuffer() {
-                        writerInput.append(sampleBuffer)
+                        guard writerInput.append(sampleBuffer) else {
+                            writerInput.markAsFinished()
+                            let message = writer.error?.localizedDescription
+                                ?? reader.error?.localizedDescription
+                                ?? L10n.tr("error.audio.write_failed")
+                            resume(with: .failure(AudioExtractorError.exportFailed(message)))
+                            return
+                        }
                     } else {
                         writerInput.markAsFinished()
-                        continuation.resume()
+                        if reader.status == .failed {
+                            let message = reader.error?.localizedDescription ?? L10n.tr("error.audio.cannot_start_reading")
+                            resume(with: .failure(AudioExtractorError.exportFailed(message)))
+                        } else if reader.status == .cancelled {
+                            resume(with: .failure(AudioExtractorError.exportFailed(L10n.tr("error.conversion.cancelled"))))
+                        } else {
+                            resume(with: .success(()))
+                        }
                         return
                     }
+                }
+
+                if reader.status == .failed {
+                    let message = reader.error?.localizedDescription ?? L10n.tr("error.audio.cannot_start_reading")
+                    resume(with: .failure(AudioExtractorError.exportFailed(message)))
+                } else if writer.status == .failed {
+                    let message = writer.error?.localizedDescription ?? L10n.tr("error.audio.write_failed")
+                    resume(with: .failure(AudioExtractorError.exportFailed(message)))
                 }
             }
         }

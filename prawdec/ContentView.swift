@@ -11,6 +11,12 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @State private var model = AppModel.makeDefault()
 
+    private var noJobsDescription: Text {
+        let prefix = Text(verbatim: L10n.tr("content.no_jobs.description.prefix"))
+        let suffix = Text(verbatim: L10n.tr("content.no_jobs.description.suffix"))
+        return Text("\(prefix)\(Image(systemName: "plus"))\(suffix)")
+    }
+
     var body: some View {
         NavigationSplitView {
             List(selection: $model.selectedJobID) {
@@ -18,11 +24,8 @@ struct ContentView: View {
                     ContentUnavailableView {
                         Label(L10n.tr("content.no_jobs.title"), systemImage: "film.stack")
                     } description: {
-                        HStack(spacing: 4) {
-                            Text(L10n.tr("content.no_jobs.description.prefix"))
-                            Image(systemName: "plus")
-                            Text(L10n.tr("content.no_jobs.description.suffix"))
-                        }
+                        noJobsDescription
+                            .multilineTextAlignment(.center)
                     }
                     .listRowSeparator(.hidden)
                 } else {

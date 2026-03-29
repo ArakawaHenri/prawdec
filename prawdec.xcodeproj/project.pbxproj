@@ -282,7 +282,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/DNGSDK/lib",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ldng",
@@ -336,7 +336,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/DNGSDK/lib",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ldng",

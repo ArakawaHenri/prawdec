@@ -319,7 +319,7 @@ final class AppModel {
             }
             jobs[index].progress.completedFrames = completed
             if let total {
-                jobs[index].progress.estimatedTotalFrames = total
+                jobs[index].progress.estimatedTotalFrames = max(total, completed)
             }
 
         case .note(let id, let note):
@@ -343,8 +343,12 @@ final class AppModel {
             case .success:
                 jobs[index].status = .completed
                 jobs[index].finishedAt = .now
-                jobs[index].progress.completedFrames =
-                    jobs[index].progress.estimatedTotalFrames ?? jobs[index].progress.completedFrames
+                let finalCompleted = max(
+                    jobs[index].progress.completedFrames,
+                    jobs[index].progress.estimatedTotalFrames ?? 0
+                )
+                jobs[index].progress.completedFrames = finalCompleted
+                jobs[index].progress.estimatedTotalFrames = finalCompleted
             case .failure(let error):
                 if case ConversionServiceError.cancelled = error {
                     jobs[index].status = .cancelled
