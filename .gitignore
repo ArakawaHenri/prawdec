@@ -1,0 +1,52 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Xcode and Swift build artifacts
+build/
+DerivedData/
+.build/
+*.app
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+*.ipa
+*.xctestrun
+*.xcresult
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+
+# Editors and tooling
+.vscode/
+.idea/
+.clangd/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.orig
+*.rej
