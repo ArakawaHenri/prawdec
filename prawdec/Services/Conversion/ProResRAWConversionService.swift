@@ -587,13 +587,17 @@ final class ProResRAWConversionService: Sendable {
         let packedData = Data(bytes: bufferPointer, count: safeBytes)
 
         let crop = parseRecommendedCrop(from: CVBufferCopyAttachments(pixelBuffer, .shouldPropagate) as? [String: Any])
+        let cropLeft = min(max(0, crop?.left ?? 0), Double(visibleWidth))
+        let cropRight = min(max(0, crop?.right ?? 0), Double(visibleWidth))
+        let cropTop = min(max(0, crop?.top ?? 0), Double(visibleHeight))
+        let cropBottom = min(max(0, crop?.bottom ?? 0), Double(visibleHeight))
         let defaultCropOrigin = [
-            max(0, crop?.left ?? 0),
-            max(0, crop?.top ?? 0),
+            max(0, Double(extraLeft)) + cropLeft,
+            max(0, Double(extraTop)) + cropTop,
         ]
         let defaultCropSize = [
-            max(1, Double(visibleWidth) - max(0, crop?.left ?? 0) - max(0, crop?.right ?? 0)),
-            max(1, Double(visibleHeight) - max(0, crop?.top ?? 0) - max(0, crop?.bottom ?? 0)),
+            max(1, Double(visibleWidth) - cropLeft - cropRight),
+            max(1, Double(visibleHeight) - cropTop - cropBottom),
         ]
 
         return RawFrameBuffer(
