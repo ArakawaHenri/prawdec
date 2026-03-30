@@ -17,51 +17,56 @@ struct ContentView: View {
         return Text("\(prefix)\(Image(systemName: "plus"))\(suffix)")
     }
 
-    var body: some View {
-        NavigationSplitView {
+    @ViewBuilder
+    private var sidebarContent: some View {
+        if model.jobs.isEmpty {
+            ContentUnavailableView {
+                Label(L10n.tr("content.no_jobs.title"), systemImage: "film.stack")
+            } description: {
+                noJobsDescription
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
             List(selection: $model.selectedJobID) {
-                if model.jobs.isEmpty {
-                    ContentUnavailableView {
-                        Label(L10n.tr("content.no_jobs.title"), systemImage: "film.stack")
-                    } description: {
-                        noJobsDescription
-                            .multilineTextAlignment(.center)
-                    }
-                    .listRowSeparator(.hidden)
-                } else {
-                    Section {
-                        ForEach(model.jobs) { job in
-                            QueueJobRowView(job: job, queuePosition: model.queuePosition(for: job.id))
-                                .tag(job.id)
-                                .contextMenu {
-                                    Button(L10n.tr("action.start")) {
-                                        model.start(jobID: job.id)
-                                    }
-                                    .disabled(!job.canStart)
-
-                                    Button(L10n.tr("action.pause")) {
-                                        model.pause(jobID: job.id)
-                                    }
-                                    .disabled(!job.canPause)
-
-                                    Button(L10n.tr("action.cancel")) {
-                                        model.cancel(jobID: job.id)
-                                    }
-                                    .disabled(!job.canCancel)
-
-                                    Divider()
-
-                                    Button(L10n.tr("action.remove")) {
-                                        model.remove(jobID: job.id)
-                                    }
-                                    .disabled(!job.canRemove)
+                Section {
+                    ForEach(model.jobs) { job in
+                        QueueJobRowView(job: job, queuePosition: model.queuePosition(for: job.id))
+                            .tag(job.id)
+                            .contextMenu {
+                                Button(L10n.tr("action.start")) {
+                                    model.start(jobID: job.id)
                                 }
-                        }
-                    } header: {
-                        Text(L10n.tr("content.queue.title"))
+                                .disabled(!job.canStart)
+
+                                Button(L10n.tr("action.pause")) {
+                                    model.pause(jobID: job.id)
+                                }
+                                .disabled(!job.canPause)
+
+                                Button(L10n.tr("action.cancel")) {
+                                    model.cancel(jobID: job.id)
+                                }
+                                .disabled(!job.canCancel)
+
+                                Divider()
+
+                                Button(L10n.tr("action.remove")) {
+                                    model.remove(jobID: job.id)
+                                }
+                                .disabled(!job.canRemove)
+                            }
                     }
+                } header: {
+                    Text(L10n.tr("content.queue.title"))
                 }
             }
+        }
+    }
+
+    var body: some View {
+        NavigationSplitView {
+            sidebarContent
             .navigationSplitViewColumnWidth(min: 360, ideal: 420)
         } detail: {
             if let selectedJob = model.selectedJob {
