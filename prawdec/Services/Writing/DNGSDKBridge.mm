@@ -130,6 +130,7 @@ dng_negative *BuildBaseNegative(dng_host &host,
     cropSizeH.Set_real64(defaultCropSize[1]);
     negative->SetDefaultCropOrigin(cropOriginH, cropOriginV);
     negative->SetDefaultCropSize(cropSizeW, cropSizeH);
+    negative->SetDefaultOriginalSizes();
     negative->SetBlackLevel(blackLevel);
     negative->SetWhiteLevel(whiteLevel);
 
