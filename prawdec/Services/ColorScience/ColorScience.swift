@@ -28,9 +28,18 @@ enum ColorScience {
         )
     }
 
-    /// Computes DNG ColorMatrix (XYZ → Camera) at a given illuminant CCT.
-    /// CM = D_wb⁻¹ · X⁻¹ when no CAT is needed.
-    /// CM = D_wb⁻¹ · X⁻¹ · Bradford(sourceCCT → targetCCT) otherwise.
+    /// Computes DNG ColorMatrix (XYZ → Camera) from the ProRes RAW source matrix `X`.
+    ///
+    /// Let:
+    /// - `X` be the ProRes RAW source matrix used by the current pipeline
+    /// - `D_wb = diag(R, 1, B)` from the frame white-balance factors
+    /// - `A_s→t = Bradford(sourceCCT → targetCCT)` when chromatic adaptation is required
+    ///
+    /// Then:
+    /// - `CM = D_wb⁻¹ · X⁻¹` when no CAT is needed
+    /// - `CM = D_wb⁻¹ · X⁻¹ · A_s→t` when CAT is needed
+    ///
+    /// This is treated as the source-of-truth relation for the rest of the color pipeline.
     static func computeColorMatrix(
         sourceMatrix X: Matrix3x3,
         whiteBalanceRedFactor R: Double,
@@ -45,24 +54,54 @@ enum ColorScience {
         return cm
     }
 
-    /// Computes DNG ForwardMatrix (Camera → XYZ D50).
-    /// FM = Bradford(illuminantCCT → D50) · Inverse(CM) · diag(CM · XYZ(illuminantCCT))
+    /// Computes DNG ForwardMatrix (Camera → XYZ D50) directly from the ProRes RAW source matrix `X`.
+    ///
+    /// Starting from the source-of-truth ColorMatrix relation:
+    /// `CM = D_wb⁻¹ · X⁻¹ · A_s→t`
+    ///
+    /// and the standard DNG ForwardMatrix relation:
+    /// `FM = A_t→D50 · CM⁻¹ · diag(CM · W_t)`
+    ///
+    /// where `W_t = XYZ(targetCCT)`,
+    /// substitution gives:
+    /// `FM = A_t→D50 · A_t→s · X · diag(X⁻¹ · A_s→t · W_t)`
+    ///
+    /// The white-balance diagonal cancels out exactly, so ForwardMatrix is derived
+    /// from the original ProRes RAW matrix without round-tripping through ColorMatrix.
+    ///
+    /// In implementation, the neutral term is obtained by solving
+    /// `X · n = A_s→t · W_t` directly instead of explicitly forming `X⁻¹`,
+    /// which avoids an unnecessary matrix inversion on the ForwardMatrix path.
     static func computeForwardMatrix(
-        colorMatrix cm: Matrix3x3,
-        illuminantCCT: Double
+        sourceMatrix X: Matrix3x3,
+        sourceCCT: Double?,
+        targetCCT: Double
     ) throws -> Matrix3x3 {
-        let cameraToXYZ = try cm.inverted()
-        let cameraToXYZ_D50 = try bradfordCAT(from: illuminantCCT, to: DNGIlluminant.d50CCT).multiplied(by: cameraToXYZ)
+        let sourceToTargetCAT: Matrix3x3
+        let targetToSourceCAT: Matrix3x3
 
-        let illuminantXYZ = whitePointXYZ(fromCCT: illuminantCCT)
-        let cameraNeutral = cm.multiplied(by: illuminantXYZ)
+        if let sourceCCT, abs(sourceCCT - targetCCT) > 1 {
+            sourceToTargetCAT = try bradfordCAT(from: sourceCCT, to: targetCCT)
+            targetToSourceCAT = try bradfordCAT(from: targetCCT, to: sourceCCT)
+        } else {
+            sourceToTargetCAT = .identity
+            targetToSourceCAT = .identity
+        }
+
+        let targetWhiteXYZ = whitePointXYZ(fromCCT: targetCCT)
+        let sourceNeutral = try X.solve(sourceToTargetCAT.multiplied(by: targetWhiteXYZ))
 
         let neutralDiag = Matrix3x3(rowMajor: [
-            cameraNeutral.x, 0, 0,
-            0, cameraNeutral.y, 0,
-            0, 0, cameraNeutral.z,
+            sourceNeutral.x, 0, 0,
+            0, sourceNeutral.y, 0,
+            0, 0, sourceNeutral.z,
         ])
-        return cameraToXYZ_D50.multiplied(by: neutralDiag)
+
+        let cameraToXYZD50 = try bradfordCAT(from: targetCCT, to: DNGIlluminant.d50CCT)
+            .multiplied(by: targetToSourceCAT)
+            .multiplied(by: X)
+
+        return cameraToXYZD50.multiplied(by: neutralDiag)
     }
 
     /// Precompute clip-level color profile. Returns non-nil for Scenario A
@@ -89,8 +128,8 @@ enum ColorScience {
 
         guard let cm1 = try? computeColorMatrix(sourceMatrix: xA, whiteBalanceRedFactor: rA, whiteBalanceBlueFactor: bA, sourceCCT: nil, targetCCT: nil),
               let cm2 = try? computeColorMatrix(sourceMatrix: xD65, whiteBalanceRedFactor: rD65, whiteBalanceBlueFactor: bD65, sourceCCT: nil, targetCCT: nil),
-              let fm1 = try? computeForwardMatrix(colorMatrix: cm1, illuminantCCT: DNGIlluminant.standardACCT),
-              let fm2 = try? computeForwardMatrix(colorMatrix: cm2, illuminantCCT: DNGIlluminant.d65CCT) else {
+              let fm1 = try? computeForwardMatrix(sourceMatrix: xA, sourceCCT: nil, targetCCT: DNGIlluminant.standardACCT),
+              let fm2 = try? computeForwardMatrix(sourceMatrix: xD65, sourceCCT: nil, targetCCT: DNGIlluminant.d65CCT) else {
             return nil
         }
 

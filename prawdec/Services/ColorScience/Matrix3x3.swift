@@ -45,6 +45,51 @@ struct Matrix3x3: Equatable, Sendable {
         )
     }
 
+    /// Solves `self * x = b` using Gaussian elimination with partial pivoting.
+    func solve(_ b: SIMD3<Double>) throws -> SIMD3<Double> {
+        var a = [
+            [values[0], values[1], values[2], b.x],
+            [values[3], values[4], values[5], b.y],
+            [values[6], values[7], values[8], b.z],
+        ]
+
+        for pivotColumn in 0..<3 {
+            var pivotRow = pivotColumn
+            var pivotMagnitude = abs(a[pivotColumn][pivotColumn])
+
+            for candidateRow in (pivotColumn + 1)..<3 {
+                let candidateMagnitude = abs(a[candidateRow][pivotColumn])
+                if candidateMagnitude > pivotMagnitude {
+                    pivotMagnitude = candidateMagnitude
+                    pivotRow = candidateRow
+                }
+            }
+
+            guard pivotMagnitude > 1e-12 else {
+                throw ColorScienceError.singularMatrix
+            }
+
+            if pivotRow != pivotColumn {
+                a.swapAt(pivotRow, pivotColumn)
+            }
+
+            let pivot = a[pivotColumn][pivotColumn]
+            for column in pivotColumn..<4 {
+                a[pivotColumn][column] /= pivot
+            }
+
+            for row in 0..<3 where row != pivotColumn {
+                let factor = a[row][pivotColumn]
+                guard factor != 0 else { continue }
+                for column in pivotColumn..<4 {
+                    a[row][column] -= factor * a[pivotColumn][column]
+                }
+            }
+        }
+
+        return SIMD3(a[0][3], a[1][3], a[2][3])
+    }
+
     func inverted() throws -> Matrix3x3 {
         var inverse = Array(repeating: 0.0, count: 9)
         inverse[0] = values[4] * values[8] - values[5] * values[7]

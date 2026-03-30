@@ -88,8 +88,16 @@ struct DualIlluminantFromTablesStrategy: ColorResolutionStrategy {
             sourceMatrix: xD65, whiteBalanceRedFactor: rD65, whiteBalanceBlueFactor: bD65,
             sourceCCT: nil, targetCCT: nil)
 
-        let fm1 = try ColorScience.computeForwardMatrix(colorMatrix: cm1, illuminantCCT: DNGIlluminant.standardACCT)
-        let fm2 = try ColorScience.computeForwardMatrix(colorMatrix: cm2, illuminantCCT: DNGIlluminant.d65CCT)
+        let fm1 = try ColorScience.computeForwardMatrix(
+            sourceMatrix: xA,
+            sourceCCT: nil,
+            targetCCT: DNGIlluminant.standardACCT
+        )
+        let fm2 = try ColorScience.computeForwardMatrix(
+            sourceMatrix: xD65,
+            sourceCCT: nil,
+            targetCCT: DNGIlluminant.d65CCT
+        )
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm1,
@@ -130,8 +138,16 @@ struct DualIlluminantFromCATStrategy: ColorResolutionStrategy {
             targetCCT: DNGIlluminant.d65CCT
         )
 
-        let fm1 = try ColorScience.computeForwardMatrix(colorMatrix: cm1, illuminantCCT: DNGIlluminant.standardACCT)
-        let fm2 = try ColorScience.computeForwardMatrix(colorMatrix: cm2, illuminantCCT: DNGIlluminant.d65CCT)
+        let fm1 = try ColorScience.computeForwardMatrix(
+            sourceMatrix: ctx.frameX,
+            sourceCCT: Double(ctx.frameCCT!),
+            targetCCT: DNGIlluminant.standardACCT
+        )
+        let fm2 = try ColorScience.computeForwardMatrix(
+            sourceMatrix: ctx.frameX,
+            sourceCCT: Double(ctx.frameCCT!),
+            targetCCT: DNGIlluminant.d65CCT
+        )
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm1,
@@ -164,7 +180,11 @@ struct SingleIlluminantWithCATStrategy: ColorResolutionStrategy {
             sourceCCT: Double(ctx.frameCCT!),
             targetCCT: DNGIlluminant.d65CCT
         )
-        let fm = try ColorScience.computeForwardMatrix(colorMatrix: cm, illuminantCCT: DNGIlluminant.d65CCT)
+        let fm = try ColorScience.computeForwardMatrix(
+            sourceMatrix: ctx.frameX,
+            sourceCCT: Double(ctx.frameCCT!),
+            targetCCT: DNGIlluminant.d65CCT
+        )
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm,
