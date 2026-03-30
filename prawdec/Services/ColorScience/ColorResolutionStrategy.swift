@@ -83,21 +83,13 @@ struct DualIlluminantFromTablesStrategy: ColorResolutionStrategy {
 
         let cm1 = try ColorScience.computeColorMatrix(
             sourceMatrix: xA, whiteBalanceRedFactor: rA, whiteBalanceBlueFactor: bA,
-            sourceCCT: nil, targetCCT: nil)
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.standardA))
         let cm2 = try ColorScience.computeColorMatrix(
             sourceMatrix: xD65, whiteBalanceRedFactor: rD65, whiteBalanceBlueFactor: bD65,
-            sourceCCT: nil, targetCCT: nil)
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.d65))
 
-        let fm1 = try ColorScience.computeForwardMatrix(
-            sourceMatrix: xA,
-            sourceCCT: nil,
-            targetCCT: DNGIlluminant.standardACCT
-        )
-        let fm2 = try ColorScience.computeForwardMatrix(
-            sourceMatrix: xD65,
-            sourceCCT: nil,
-            targetCCT: DNGIlluminant.d65CCT
-        )
+        let fm1 = try ColorScience.computeForwardMatrix(sourceMatrix: xA)
+        let fm2 = try ColorScience.computeForwardMatrix(sourceMatrix: xD65)
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm1,
@@ -127,27 +119,16 @@ struct DualIlluminantFromCATStrategy: ColorResolutionStrategy {
             sourceMatrix: ctx.frameX,
             whiteBalanceRedFactor: ctx.frameR!,
             whiteBalanceBlueFactor: ctx.frameB!,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.standardACCT
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.standardA)
         )
         let cm2 = try ColorScience.computeColorMatrix(
             sourceMatrix: ctx.frameX,
             whiteBalanceRedFactor: ctx.frameR!,
             whiteBalanceBlueFactor: ctx.frameB!,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.d65CCT
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.d65)
         )
 
-        let fm1 = try ColorScience.computeForwardMatrix(
-            sourceMatrix: ctx.frameX,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.standardACCT
-        )
-        let fm2 = try ColorScience.computeForwardMatrix(
-            sourceMatrix: ctx.frameX,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.d65CCT
-        )
+        let sharedForwardMatrix = try ColorScience.computeForwardMatrix(sourceMatrix: ctx.frameX)
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm1,
@@ -155,8 +136,8 @@ struct DualIlluminantFromCATStrategy: ColorResolutionStrategy {
             asShotNeutral: ctx.asShotNeutral,
             colorMatrix2: cm2,
             calibrationIlluminant2: DNGIlluminant.d65,
-            forwardMatrix1: fm1,
-            forwardMatrix2: fm2,
+            forwardMatrix1: sharedForwardMatrix,
+            forwardMatrix2: sharedForwardMatrix,
             mode: Self.mode,
             notes: ctx.notes + ["场景 B：双光源 CAT 适配"]
         )
@@ -177,14 +158,9 @@ struct SingleIlluminantWithCATStrategy: ColorResolutionStrategy {
             sourceMatrix: ctx.frameX,
             whiteBalanceRedFactor: ctx.frameR!,
             whiteBalanceBlueFactor: ctx.frameB!,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.d65CCT
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.d65)
         )
-        let fm = try ColorScience.computeForwardMatrix(
-            sourceMatrix: ctx.frameX,
-            sourceCCT: Double(ctx.frameCCT!),
-            targetCCT: DNGIlluminant.d65CCT
-        )
+        let fm = try ColorScience.computeForwardMatrix(sourceMatrix: ctx.frameX)
 
         return ResolvedFrameColorMetadata(
             colorMatrix1: cm,
@@ -214,8 +190,7 @@ struct SingleIlluminantUndoWBStrategy: ColorResolutionStrategy {
             sourceMatrix: ctx.frameX,
             whiteBalanceRedFactor: ctx.frameR!,
             whiteBalanceBlueFactor: ctx.frameB!,
-            sourceCCT: nil,
-            targetCCT: nil
+            calibrationWhitePoint: .standardIlluminant(DNGIlluminant.d65)
         )
 
         return ResolvedFrameColorMetadata(

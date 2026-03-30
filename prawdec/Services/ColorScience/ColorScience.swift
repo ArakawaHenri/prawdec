@@ -28,68 +28,51 @@ enum ColorScience {
         )
     }
 
-    /// Computes DNG ColorMatrix (XYZ → Camera) from the ProRes RAW source matrix `X`.
+    /// Computes DNG ColorMatrix (XYZ under the calibration illuminant → Camera).
     ///
-    /// Let:
-    /// - `X` be the ProRes RAW source matrix used by the current pipeline
-    /// - `D_wb = diag(R, 1, B)` from the frame white-balance factors
-    /// - `A_s→t = Bradford(sourceCCT → targetCCT)` when chromatic adaptation is required
+    /// Apple defines the ProRes RAW matrix `X` as:
+    /// `X : CameraNative → XYZ(D65)`
     ///
-    /// Then:
-    /// - `CM = D_wb⁻¹ · X⁻¹` when no CAT is needed
-    /// - `CM = D_wb⁻¹ · X⁻¹ · A_s→t` when CAT is needed
+    /// DNG `ColorMatrix` for a calibration illuminant `T` must instead map:
+    /// `XYZ(T) → Camera`
     ///
-    /// This is treated as the source-of-truth relation for the rest of the color pipeline.
+    /// Therefore the stable relation is:
+    /// `CM_T = D_wb⁻¹ · X⁻¹ · A_T→D65`
+    ///
+    /// where:
+    /// - `D_wb = diag(R, 1, B)` from the selected white-balance factors
+    /// - `A_T→D65 = Bradford(T → D65)`
+    ///
+    /// Standard DNG illuminants use the same fixed white points as the DNG SDK.
+    /// Non-standard illuminants continue to use the Robertson/Planckian CCT
+    /// approximation.
     static func computeColorMatrix(
         sourceMatrix X: Matrix3x3,
         whiteBalanceRedFactor R: Double,
         whiteBalanceBlueFactor B: Double,
-        sourceCCT: Double?,
-        targetCCT: Double?
+        calibrationWhitePoint: WhitePointReference
     ) throws -> Matrix3x3 {
-        var cm = try X.inverted().dividedRGBRows(redFactor: R, blueFactor: B)
-        if let sourceCCT, let targetCCT, abs(sourceCCT - targetCCT) > 1 {
-            cm = cm.multiplied(by: try bradfordCAT(from: sourceCCT, to: targetCCT))
-        }
-        return cm
+        try X.inverted()
+            .dividedRGBRows(redFactor: R, blueFactor: B)
+            .multiplied(by: bradfordCAT(from: calibrationWhitePoint, to: .standardIlluminant(DNGIlluminant.d65)))
     }
 
-    /// Computes DNG ForwardMatrix (Camera → XYZ D50) directly from the ProRes RAW source matrix `X`.
+    /// Computes DNG ForwardMatrix (Camera → XYZ D50) from the ProRes RAW source matrix `X`.
     ///
-    /// Starting from the source-of-truth ColorMatrix relation:
-    /// `CM = D_wb⁻¹ · X⁻¹ · A_s→t`
+    /// With the ColorMatrix relation:
+    /// `CM_T = D_wb⁻¹ · X⁻¹ · A_T→D65`
     ///
-    /// and the standard DNG ForwardMatrix relation:
-    /// `FM = A_t→D50 · CM⁻¹ · diag(CM · W_t)`
+    /// and the DNG ForwardMatrix relation:
+    /// `FM_T = A_T→D50 · CM_T⁻¹ · diag(CM_T · W_T)`
     ///
-    /// where `W_t = XYZ(targetCCT)`,
-    /// substitution gives:
-    /// `FM = A_t→D50 · A_t→s · X · diag(X⁻¹ · A_s→t · W_t)`
+    /// the illuminant-specific CAT terms cancel, yielding:
+    /// `FM = A_D65→D50 · X · diag(X⁻¹ · W_D65)`
     ///
-    /// The white-balance diagonal cancels out exactly, so ForwardMatrix is derived
-    /// from the original ProRes RAW matrix without round-tripping through ColorMatrix.
-    ///
-    /// In implementation, the neutral term is obtained by solving
-    /// `X · n = A_s→t · W_t` directly instead of explicitly forming `X⁻¹`,
-    /// which avoids an unnecessary matrix inversion on the ForwardMatrix path.
-    static func computeForwardMatrix(
-        sourceMatrix X: Matrix3x3,
-        sourceCCT: Double?,
-        targetCCT: Double
-    ) throws -> Matrix3x3 {
-        let sourceToTargetCAT: Matrix3x3
-        let targetToSourceCAT: Matrix3x3
-
-        if let sourceCCT, abs(sourceCCT - targetCCT) > 1 {
-            sourceToTargetCAT = try bradfordCAT(from: sourceCCT, to: targetCCT)
-            targetToSourceCAT = try bradfordCAT(from: targetCCT, to: sourceCCT)
-        } else {
-            sourceToTargetCAT = .identity
-            targetToSourceCAT = .identity
-        }
-
-        let targetWhiteXYZ = whitePointXYZ(fromCCT: targetCCT)
-        let sourceNeutral = try X.solve(sourceToTargetCAT.multiplied(by: targetWhiteXYZ))
+    /// So ForwardMatrix depends only on the ProRes RAW matrix's D65 basis, not
+    /// on the calibration illuminant chosen for the ColorMatrix tags.
+    static func computeForwardMatrix(sourceMatrix X: Matrix3x3) throws -> Matrix3x3 {
+        let d65WhiteXYZ = whitePointXYZ(for: .standardIlluminant(DNGIlluminant.d65))
+        let sourceNeutral = try X.solve(d65WhiteXYZ)
 
         let neutralDiag = Matrix3x3(rowMajor: [
             sourceNeutral.x, 0, 0,
@@ -97,8 +80,10 @@ enum ColorScience {
             0, 0, sourceNeutral.z,
         ])
 
-        let cameraToXYZD50 = try bradfordCAT(from: targetCCT, to: DNGIlluminant.d50CCT)
-            .multiplied(by: targetToSourceCAT)
+        let cameraToXYZD50 = try bradfordCAT(
+            from: .standardIlluminant(DNGIlluminant.d65),
+            to: .xy(x: DNGIlluminant.d50XYWhitePoint.x, y: DNGIlluminant.d50XYWhitePoint.y)
+        )
             .multiplied(by: X)
 
         return cameraToXYZD50.multiplied(by: neutralDiag)
@@ -126,10 +111,20 @@ enum ColorScience {
             return nil
         }
 
-        guard let cm1 = try? computeColorMatrix(sourceMatrix: xA, whiteBalanceRedFactor: rA, whiteBalanceBlueFactor: bA, sourceCCT: nil, targetCCT: nil),
-              let cm2 = try? computeColorMatrix(sourceMatrix: xD65, whiteBalanceRedFactor: rD65, whiteBalanceBlueFactor: bD65, sourceCCT: nil, targetCCT: nil),
-              let fm1 = try? computeForwardMatrix(sourceMatrix: xA, sourceCCT: nil, targetCCT: DNGIlluminant.standardACCT),
-              let fm2 = try? computeForwardMatrix(sourceMatrix: xD65, sourceCCT: nil, targetCCT: DNGIlluminant.d65CCT) else {
+        guard let cm1 = try? computeColorMatrix(
+                sourceMatrix: xA,
+                whiteBalanceRedFactor: rA,
+                whiteBalanceBlueFactor: bA,
+                calibrationWhitePoint: .standardIlluminant(DNGIlluminant.standardA)
+              ),
+              let cm2 = try? computeColorMatrix(
+                sourceMatrix: xD65,
+                whiteBalanceRedFactor: rD65,
+                whiteBalanceBlueFactor: bD65,
+                calibrationWhitePoint: .standardIlluminant(DNGIlluminant.d65)
+              ),
+              let fm1 = try? computeForwardMatrix(sourceMatrix: xA),
+              let fm2 = try? computeForwardMatrix(sourceMatrix: xD65) else {
             return nil
         }
 
@@ -258,15 +253,30 @@ enum ColorScience {
         return SIMD3(x / y, 1, (1 - x - y) / y)
     }
 
-    static func bradfordCAT(from sourceCCT: Double, to destinationCCT: Double) throws -> Matrix3x3 {
+    private static func xyzWhitePoint(fromXY xy: (x: Double, y: Double)) -> SIMD3<Double> {
+        SIMD3(xy.x / xy.y, 1, (1 - xy.x - xy.y) / xy.y)
+    }
+
+    static func whitePointXYZ(for reference: WhitePointReference) -> SIMD3<Double> {
+        switch reference {
+        case .standardIlluminant(let illuminant):
+            return xyzWhitePoint(fromXY: DNGIlluminant.xyWhitePoint(for: illuminant) ?? DNGIlluminant.d50XYWhitePoint)
+        case .correlatedColorTemperature(let cct):
+            return whitePointXYZ(fromCCT: cct)
+        case .xy(let x, let y):
+            return xyzWhitePoint(fromXY: (x, y))
+        }
+    }
+
+    static func bradfordCAT(from source: WhitePointReference, to destination: WhitePointReference) throws -> Matrix3x3 {
         let bradford = Matrix3x3(rowMajor: [
             0.8951, 0.2664, -0.1614,
             -0.7502, 1.7135, 0.0367,
             0.0389, -0.0685, 1.0296,
         ])
 
-        let sourceWhitePoint = whitePointXYZ(fromCCT: sourceCCT)
-        let destinationWhitePoint = whitePointXYZ(fromCCT: destinationCCT)
+        let sourceWhitePoint = whitePointXYZ(for: source)
+        let destinationWhitePoint = whitePointXYZ(for: destination)
         var sourceLMS = bradford.multiplied(by: sourceWhitePoint)
         var destinationLMS = bradford.multiplied(by: destinationWhitePoint)
 
