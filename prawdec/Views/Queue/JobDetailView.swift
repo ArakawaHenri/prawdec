@@ -17,6 +17,8 @@ struct JobDetailView: View {
                 header
                 configurationSection
                 metadataSection
+                videoTracksSection
+                audioTracksSection
                 runtimeSection
             }
             .padding(20)
@@ -109,32 +111,126 @@ struct JobDetailView: View {
                 if let eta = job.progress.etaLabel, job.status == .running {
                     metadataRow(L10n.tr("field.eta"), eta)
                 }
-                if let clipMetadata = job.clipMetadata {
-                    if let dimensions = clipMetadata.dimensions {
-                        metadataRow(L10n.tr("field.dimensions"), dimensions.description)
-                    }
-                    if let nominalFrameRate = clipMetadata.nominalFrameRate {
-                        metadataRow(L10n.tr("field.frame_rate"), L10n.tr("value.frame_rate", nominalFrameRate))
-                    }
-                    if let estimatedFrameCount = clipMetadata.estimatedFrameCount {
-                        metadataRow(L10n.tr("field.estimated_frames"), "\(estimatedFrameCount)")
-                    }
-                    metadataRow(L10n.tr("field.metadata_quality"), clipMetadata.quality.title)
-                    if let manufacturer = clipMetadata.manufacturer {
+                if let sourceMetadata = job.sourceMetadata {
+                    metadataRow(L10n.tr("field.metadata_quality"), sourceMetadata.quality.title)
+                    metadataRow(L10n.tr("field.video_track_count"), "\(sourceMetadata.videoTrackCount)")
+                    metadataRow(L10n.tr("field.audio_track_count"), "\(sourceMetadata.audioTrackCount)")
+                    metadataRow(L10n.tr("field.timecode_track_count"), "\(sourceMetadata.timecodeTrackCount)")
+                    if let manufacturer = sourceMetadata.manufacturer {
                         metadataRow(L10n.tr("field.manufacturer"), manufacturer)
                     }
-                    if let model = clipMetadata.model {
+                    if let model = sourceMetadata.model {
                         metadataRow(L10n.tr("field.model"), model)
                     }
-                    if let reportedCaptureCCT = clipMetadata.reportedCaptureCCT {
+                    if let reportedCaptureCCT = sourceMetadata.reportedCaptureCCT {
                         metadataRow(L10n.tr("field.capture_white_balance"), L10n.tr("value.capture_white_balance", reportedCaptureCCT))
                     }
-                    metadataRow(L10n.tr("field.wb_bycct"), "\(clipMetadata.whiteBalanceByCCTCount)")
-                    metadataRow(L10n.tr("field.matrix_bycct"), "\(clipMetadata.colorMatrixByCCTCount)")
+                    metadataRow(L10n.tr("field.wb_bycct"), "\(sourceMetadata.whiteBalanceByCCTCount)")
+                    metadataRow(L10n.tr("field.matrix_bycct"), "\(sourceMetadata.colorMatrixByCCTCount)")
                 } else {
                     Text(L10n.tr("metadata.unavailable"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.top, 6)
+        }
+    }
+
+    private var videoTracksSection: some View {
+        GroupBox(L10n.tr("section.video_tracks")) {
+            VStack(alignment: .leading, spacing: 12) {
+                if job.videoTracks.isEmpty {
+                    Text(L10n.tr("metadata.unavailable"))
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(job.videoTracks) { track in
+                        trackCard(title: track.track.displayName, status: track.status) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                if let dimensions = track.summary.dimensions {
+                                    metadataRow(L10n.tr("field.dimensions"), dimensions.description)
+                                }
+                                if let frameRate = track.summary.nominalFrameRate {
+                                    metadataRow(L10n.tr("field.frame_rate"), L10n.tr("value.frame_rate", frameRate))
+                                }
+                                if let estimatedFrames = track.summary.estimatedFrameCount {
+                                    metadataRow(L10n.tr("field.estimated_frames"), "\(estimatedFrames)")
+                                }
+                                metadataRow(L10n.tr("field.progress"), track.progress.frameLabel)
+                                if let timecode = track.selectedTimecodeOption?.startTimecode {
+                                    metadataRow(L10n.tr("field.start_timecode"), timecode)
+                                }
+                                if track.canChooseTimecode {
+                                    Picker(
+                                        L10n.tr("field.timecode_track"),
+                                        selection: videoTimecodeBinding(for: track.track.trackID)
+                                    ) {
+                                        ForEach(track.availableTimecodeOptions) { option in
+                                            Text(option.title).tag(Optional(option.track.trackID))
+                                        }
+                                    }
+                                    .disabled(!job.canEditConfiguration)
+                                }
+                                if let note = track.note, !note.isEmpty {
+                                    metadataRow(L10n.tr("field.note"), note)
+                                }
+                                if let errorMessage = track.errorMessage, !errorMessage.isEmpty {
+                                    metadataRow(L10n.tr("field.error"), errorMessage)
+                                }
+                                ForEach(track.warnings, id: \.self) { warning in
+                                    Label(warning, systemImage: "exclamationmark.triangle.fill")
+                                        .font(.callout)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.top, 6)
+        }
+    }
+
+    private var audioTracksSection: some View {
+        GroupBox(L10n.tr("section.audio_tracks")) {
+            VStack(alignment: .leading, spacing: 12) {
+                if job.audioTracks.isEmpty {
+                    Text(L10n.tr("field.no_audio_tracks"))
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(job.audioTracks) { track in
+                        trackCard(title: track.track.displayName, status: track.status) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                metadataRow(L10n.tr("field.output_file"), track.outputFileName)
+                                metadataRow(L10n.tr("field.progress"), track.progress.frameLabel)
+                                if let timecode = track.selectedTimecodeOption?.startTimecode {
+                                    metadataRow(L10n.tr("field.start_timecode"), timecode)
+                                }
+                                if track.canChooseTimecode {
+                                    Picker(
+                                        L10n.tr("field.timecode_track"),
+                                        selection: audioTimecodeBinding(for: track.track.trackID)
+                                    ) {
+                                        ForEach(track.availableTimecodeOptions) { option in
+                                            Text(option.title).tag(Optional(option.track.trackID))
+                                        }
+                                    }
+                                    .disabled(!job.canEditConfiguration)
+                                }
+                                if let note = track.note, !note.isEmpty {
+                                    metadataRow(L10n.tr("field.note"), note)
+                                }
+                                if let errorMessage = track.errorMessage, !errorMessage.isEmpty {
+                                    metadataRow(L10n.tr("field.error"), errorMessage)
+                                }
+                                ForEach(track.warnings, id: \.self) { warning in
+                                    Label(warning, systemImage: "exclamationmark.triangle.fill")
+                                        .font(.callout)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                        }
+                    }
                 }
             }
             .padding(.top, 6)
@@ -186,12 +282,28 @@ struct JobDetailView: View {
         HStack(alignment: .top) {
             Text(title)
                 .foregroundStyle(.secondary)
-                .frame(width: 90, alignment: .leading)
+                .frame(width: 110, alignment: .leading)
             Text(value)
                 .textSelection(.enabled)
             Spacer()
         }
         .font(.callout)
+    }
+
+    private func trackCard<Content: View>(title: String, status: ConversionStatus, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                Text(status.title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            content()
+        }
+        .padding(12)
+        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func actionButton(_ title: String, systemImage: String, disabled: Bool, action: @escaping () -> Void) -> some View {
@@ -213,6 +325,20 @@ struct JobDetailView: View {
         Binding(
             get: { job.compressionPreset.quality ?? DNGCompressionQualityDefaults.jpegQuality },
             set: { model.updateCompressionQuality($0, for: job.id) }
+        )
+    }
+
+    private func videoTimecodeBinding(for trackID: Int32) -> Binding<Int32?> {
+        Binding(
+            get: { job.videoTracks.first(where: { $0.track.trackID == trackID })?.selectedTimecodeTrackID },
+            set: { model.updateVideoTimecodeTrack($0, for: trackID, in: job.id) }
+        )
+    }
+
+    private func audioTimecodeBinding(for trackID: Int32) -> Binding<Int32?> {
+        Binding(
+            get: { job.audioTracks.first(where: { $0.track.trackID == trackID })?.selectedTimecodeTrackID },
+            set: { model.updateAudioTimecodeTrack($0, for: trackID, in: job.id) }
         )
     }
 

@@ -42,6 +42,8 @@
 "conversion.note.no_timecode_track" = "No timecode track found. Starting from 00:00:00:00";
 "conversion.note.starting_timecode" = "Starting timecode: %@";
 "conversion.warning.audio_export_failed" = "Audio export failed: %@";
+"conversion.warning.timecode_selection_reset" = "Timecode selection for %@ was reset because the previously chosen timecode track is no longer available.";
+"conversion.warning.timecode_track_skipped" = "Skipped timecode track %@: %@";
 
 "directory_picker.prompt.select" = "Choose";
 "directory_picker.title.select_output" = "Choose Output Folder";
@@ -126,10 +128,15 @@
 
 "queue.frames" = "%ld frames";
 "queue.position" = "Queued #%ld";
+"queue.audio_tracks" = "%ld audio";
+"queue.timecode_tracks" = "%ld tmcd";
+"queue.video_tracks" = "%ld video";
 
 "section.configuration" = "Configuration";
 "section.metadata" = "Metadata";
 "section.runtime" = "Runtime";
+"section.audio_tracks" = "Audio Tracks";
+"section.video_tracks" = "Video Tracks";
 
 "status.cancelled" = "Cancelled";
 "status.cancelling" = "Cancelling";
@@ -144,3 +151,18 @@
 
 "value.capture_white_balance" = "%ldK";
 "value.frame_rate" = "%.3f";
+
+"field.audio_track_count" = "Audio Tracks";
+"field.no_audio_tracks" = "No audio tracks";
+"field.output_file" = "Output File";
+"field.start_timecode" = "Start Timecode";
+"field.timecode_track" = "Timecode Track";
+"field.timecode_track_count" = "Timecode Tracks";
+"field.video_track_count" = "Video Tracks";
+
+"track.kind.audio" = "Audio";
+"track.kind.timecode" = "Timecode";
+"track.kind.video" = "Video";
+
+"error.audio.invalid_wav" = "Invalid WAV file.";
+"error.timecode_extractor.invalid_timecode_track" = "Unable to parse the timecode track.";

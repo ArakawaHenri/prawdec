@@ -7,14 +7,14 @@
 
 import Foundation
 
-/// Events emitted by QueueEngine back to AppModel.
-/// Each event describes a specific mutation — AppModel applies it to the single source of truth.
 enum QueueEngineEvent: Sendable {
-    case prepared(id: UUID, outputFolderURL: URL, estimatedFrames: Int?)
-    case progress(id: UUID, completedFrames: Int, estimatedTotalFrames: Int?)
+    case prepared(id: UUID, outputFolderURL: URL, estimatedTotalUnits: Int?)
     case note(id: UUID, String)
     case warning(id: UUID, String)
-    case clipSummary(id: UUID, ClipMetadataSummary)
+    case trackStatus(id: UUID, kind: TrackKind, trackID: Int32, status: ConversionStatus)
+    case trackProgress(id: UUID, kind: TrackKind, trackID: Int32, completedUnits: Int, estimatedTotalUnits: Int?)
+    case trackNote(id: UUID, kind: TrackKind, trackID: Int32, String)
+    case trackWarning(id: UUID, kind: TrackKind, trackID: Int32, String)
     case finished(id: UUID, Result<Void, Error>)
     case removed(id: UUID)
 }
@@ -24,8 +24,6 @@ private struct JobRuntime {
     let task: Task<Void, Never>
 }
 
-/// Pure executor — owns no job data, only execution state.
-/// AppModel is the single source of truth for all job state.
 actor QueueEngine {
     nonisolated let events: AsyncStream<QueueEngineEvent>
 
@@ -48,25 +46,17 @@ actor QueueEngine {
 
     var isIdle: Bool { activeJobID == nil }
 
-    /// Start executing a conversion job. Only one job runs at a time.
-    func execute(job: ConversionJob) {
-        guard activeJobID == nil else { return }
+    @discardableResult
+    func executeIfIdle(id: UUID, request: ConversionRequest) -> Bool {
+        guard activeJobID == nil else { return false }
 
-        // If this job was cancelled before we could start, emit finished immediately
-        if preemptedIDs.remove(job.id) != nil {
-            emit(.finished(id: job.id, .failure(ConversionServiceError.cancelled)))
-            return
+        if preemptedIDs.remove(id) != nil {
+            emit(.finished(id: id, .failure(ConversionServiceError.cancelled)))
+            return true
         }
 
-        let id = job.id
         let control = ConversionControl()
         activeJobID = id
-
-        let request = ConversionRequest(
-            sourceURL: job.sourceURL,
-            outputDirectoryURL: job.outputDirectoryURL,
-            compressionPreset: job.compressionPreset
-        )
 
         let task = Task { [service] in
             do {
@@ -80,6 +70,7 @@ actor QueueEngine {
         }
 
         runtime = JobRuntime(control: control, task: task)
+        return true
     }
 
     func pause() async {
@@ -92,7 +83,6 @@ actor QueueEngine {
         await runtime.control.resume()
     }
 
-    /// Cancel the active job, or preempt a job that was dispatched but not yet started.
     func cancel(id: UUID) async {
         if let activeJobID, activeJobID == id, let runtime {
             await runtime.control.cancel()
@@ -101,7 +91,6 @@ actor QueueEngine {
         }
     }
 
-    /// Cancel the active job and request its removal from AppModel when finished.
     func cancelAndRemove(id: UUID) async {
         if let activeJobID, activeJobID == id {
             pendingRemoval = true
@@ -113,16 +102,20 @@ actor QueueEngine {
 
     private func handleConversionEvent(_ event: ConversionEvent, for id: UUID) {
         switch event {
-        case .clipSummary(let summary):
-            emit(.clipSummary(id: id, summary))
-        case .prepared(let outputFolder, let estimatedFrames):
-            emit(.prepared(id: id, outputFolderURL: outputFolder, estimatedFrames: estimatedFrames))
+        case .prepared(let outputFolder, let estimatedTotalUnits):
+            emit(.prepared(id: id, outputFolderURL: outputFolder, estimatedTotalUnits: estimatedTotalUnits))
         case .note(let note):
             emit(.note(id: id, note))
         case .warning(let message):
             emit(.warning(id: id, message))
-        case .progress(let completedFrames, let estimatedTotalFrames):
-            emit(.progress(id: id, completedFrames: completedFrames, estimatedTotalFrames: estimatedTotalFrames))
+        case .trackStatus(let kind, let trackID, let status):
+            emit(.trackStatus(id: id, kind: kind, trackID: trackID, status: status))
+        case .trackProgress(let kind, let trackID, let completedUnits, let estimatedTotalUnits):
+            emit(.trackProgress(id: id, kind: kind, trackID: trackID, completedUnits: completedUnits, estimatedTotalUnits: estimatedTotalUnits))
+        case .trackNote(let kind, let trackID, let message):
+            emit(.trackNote(id: id, kind: kind, trackID: trackID, message))
+        case .trackWarning(let kind, let trackID, let message):
+            emit(.trackWarning(id: id, kind: kind, trackID: trackID, message))
         }
     }
 

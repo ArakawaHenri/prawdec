@@ -55,16 +55,21 @@ enum AppStateStore {
 
     actor Writer {
         private let userDefaults: UserDefaults
+        private var latestScheduledGeneration: UInt64 = 0
 
         init(userDefaults: UserDefaults = .standard) {
             self.userDefaults = userDefaults
         }
 
-        func saveJobs(_ jobs: [ConversionJob]) async {
+        func saveJobs(_ jobs: [ConversionJob], generation: UInt64) async {
+            guard generation >= latestScheduledGeneration else { return }
+            latestScheduledGeneration = generation
+
             let data = await MainActor.run { () -> Data? in
                 let state = PersistedAppState(jobs: jobs)
                 return try? JSONEncoder().encode(state)
             }
+            guard generation == latestScheduledGeneration else { return }
             guard let data else { return }
             userDefaults.set(data, forKey: AppStateStore.appStateKey)
         }

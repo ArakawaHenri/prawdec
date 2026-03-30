@@ -69,19 +69,16 @@ struct QueueJobRowView: View {
             .font(.caption)
             .foregroundStyle(.secondary)
 
-            if let clipMetadata = job.clipMetadata {
-                HStack {
-                    if let dimensions = clipMetadata.dimensions {
-                        Text(dimensions.description)
-                    }
-                    if let estimatedFrameCount = clipMetadata.estimatedFrameCount {
-                        Text(L10n.tr("queue.frames", estimatedFrameCount))
-                    }
-                    Text(clipMetadata.quality.title)
+            HStack {
+                Text(L10n.tr("queue.video_tracks", job.videoTracks.count))
+                Text(L10n.tr("queue.audio_tracks", job.audioTracks.count))
+                if let sourceMetadata = job.sourceMetadata {
+                    Text(L10n.tr("queue.timecode_tracks", sourceMetadata.timecodeTrackCount))
+                    Text(sourceMetadata.quality.title)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
     }

@@ -42,6 +42,8 @@
 "conversion.note.no_timecode_track" = "无时间码轨道，从 00:00:00:00 开始";
 "conversion.note.starting_timecode" = "起始时间码：%@";
 "conversion.warning.audio_export_failed" = "音频导出失败：%@";
+"conversion.warning.timecode_selection_reset" = "%@ 的时间码选择已重置，因为之前选择的时间码轨已不可用。";
+"conversion.warning.timecode_track_skipped" = "已跳过时间码轨 %@：%@";
 
 "directory_picker.prompt.select" = "选择";
 "directory_picker.title.select_output" = "选择输出目录";
@@ -126,10 +128,15 @@
 
 "queue.frames" = "%ld 帧";
 "queue.position" = "排队 #%ld";
+"queue.audio_tracks" = "%ld 音频";
+"queue.timecode_tracks" = "%ld tmcd";
+"queue.video_tracks" = "%ld 视频";
 
 "section.configuration" = "配置";
 "section.metadata" = "元数据";
 "section.runtime" = "运行时";
+"section.audio_tracks" = "音频轨道";
+"section.video_tracks" = "视频轨道";
 
 "status.cancelled" = "已取消";
 "status.cancelling" = "取消中";
@@ -144,3 +151,18 @@
 
 "value.capture_white_balance" = "%ldK";
 "value.frame_rate" = "%.3f";
+
+"field.audio_track_count" = "音频轨数";
+"field.no_audio_tracks" = "没有音频轨";
+"field.output_file" = "输出文件";
+"field.start_timecode" = "起始时间码";
+"field.timecode_track" = "时间码轨";
+"field.timecode_track_count" = "时间码轨数";
+"field.video_track_count" = "视频轨数";
+
+"track.kind.audio" = "音频";
+"track.kind.timecode" = "时间码";
+"track.kind.video" = "视频";
+
+"error.audio.invalid_wav" = "无效的 WAV 文件。";
+"error.timecode_extractor.invalid_timecode_track" = "无法解析时间码轨。";
