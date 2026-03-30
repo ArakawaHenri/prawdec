@@ -255,7 +255,7 @@
 				CODE_SIGN_ENTITLEMENTS = prawdec/prawdec.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = Y44Q4GQVS7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -282,7 +282,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/DNGSDK/lib",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ldng",
@@ -309,7 +309,7 @@
 				CODE_SIGN_ENTITLEMENTS = prawdec/prawdec.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = Y44Q4GQVS7;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -336,7 +336,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ThirdParty/DNGSDK/lib",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ldng",
